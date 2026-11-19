@@ -199,7 +199,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
     var tanggalText by remember { mutableStateOf(LocalDate.now().minusDays(25).toString()) }
     var luasText by remember { mutableStateOf("100") }
     var cara by remember { mutableStateOf("Tabur") }
-    var pupukPilih by remember { mutableStateOf(setOf("Urea", "SP-36", "KCl")) }
+    var pupukPilih by remember { mutableStateOf(setOf("NPK", "KCl")) }
     var musim by remember { mutableStateOf("Kemarau") }
     var hasil by remember { mutableStateOf<Pair<Tanaman, Int>?>(null) }
     var pesan by remember { mutableStateOf("") }
@@ -314,7 +314,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                         )
                         Spacer(Modifier.height(6.dp))
                         pupukPilih.forEach { namaPupuk ->
-                            val dariJadwal = berikut?.pupuk?.firstOrNull { it.nama.equals(namaPupuk, true) }
+                            val dariJadwal = berikut?.pupuk?.firstOrNull { it.nama.equals(namaPupuk, true) || (namaPupuk == "NPK" && it.nama.startsWith("NPK")) }
                             val pilihan = PupukDB.byNama(namaPupuk)
                             val kgHa = dariJadwal?.kgPerHa ?: pilihan?.dosisUmumKgPerHa ?: 0.0
                             val sumber = if (dariJadwal != null) "dari jadwal ${t.nama}" else "dosis umum"
@@ -358,7 +358,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                             cara == "Tabur" && musim == "Hujan" -> listOf(
                                 "JANGAN memupuk saat hujan deras atau lahan tergenang — pupuk mudah tercuci (leaching).",
                                 "Taburkan saat tanah lembap tapi tidak becek, tutup tanah tipis agar tidak hanyut.",
-                                "Untuk pupuk mudah larut (Urea, ZA, KCl, NPK): bagi dosis jadi 2 tahap selang ±7 hari agar tidak banyak yang hilang tercuci."
+                                "Untuk pupuk mudah larut (NPK, KNO3, MKP, KCl): bagi dosis jadi 2 tahap selang ±7 hari agar tidak banyak yang hilang tercuci."
                             )
                             cara == "Kocor" && musim == "Kemarau" -> listOf(
                                 "Larutkan dosis per tanaman dalam $volumeKocorMl ml air (volume lebih banyak karena kemarau), aduk sampai larut.",

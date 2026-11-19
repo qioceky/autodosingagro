@@ -208,19 +208,12 @@ object TanamanDB {
 data class PupukPilihan(val nama: String, val dosisUmumKgPerHa: Double, val bisaKocor: Boolean, val catatan: String = "")
 
 object PupukDB {
+    // Jenis pupuk di Kalkulator Dosis — sesuai ketetapan user (2026-11-19): hanya 4 ini.
     val semua: List<PupukPilihan> = listOf(
-        PupukPilihan("Urea", 75.0, true, "Sumber N — mudah larut & mudah tercuci air hujan."),
-        PupukPilihan("ZA", 100.0, true, "Sumber N + sulfur, agak mengasamkan tanah."),
-        PupukPilihan("SP-36", 100.0, false, "Sumber P — sukar larut, berikan sbg pupuk dasar dgn cara tabur/tugal."),
-        PupukPilihan("TSP", 75.0, false, "Sumber P kadar tinggi — sama seperti SP-36, cara tabur/tugal."),
-        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah & umbi."),
-        PupukPilihan("NPK 16-16-16", 150.0, true, "Pupuk majemuk seimbang, praktis untuk susulan."),
-        PupukPilihan("NPK Phonska", 150.0, true, "Pupuk majemuk subsidi (15-15-15), susulan bertahap."),
-        PupukPilihan("KNO3", 50.0, true, "Sumber K + N nitrat, cocok fase generatif & dikocor."),
-        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor/disemprot."),
-        PupukPilihan("Pupuk Kandang", 1000.0, false, "Organik — berikan sbg pupuk dasar, campur ke tanah. Tidak dikocor."),
-        PupukPilihan("Kompos", 1000.0, false, "Organik — pupuk dasar, campur ke bedengan. Tidak dikocor."),
-        PupukPilihan("Kapur Dolomit", 500.0, false, "Menaikkan pH tanah masam — 1× semusim saat olah tanah, cara tabur.")
+        PupukPilihan("NPK", 150.0, true, "Pupuk majemuk N-P-K seimbang, praktis untuk susulan — di jadwal tertulis sbg NPK 16-16-16."),
+        PupukPilihan("KNO3", 50.0, true, "Sumber K + N nitrat, cocok fase generatif (bunga & buah) & dikocor."),
+        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor."),
+        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah, umbi & ketahanan tanaman.")
     )
     fun byNama(nama: String): PupukPilihan? = semua.firstOrNull { it.nama.equals(nama, ignoreCase = true) }
 }
