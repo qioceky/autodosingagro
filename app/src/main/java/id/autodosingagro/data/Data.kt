@@ -58,7 +58,7 @@ object TanamanDB {
     val semua: List<Tanaman> = listOf(
         Tanaman(
             id = "padi", nama = "Padi", latin = "Oryza sativa", kategori = "Tanaman Pangan",
-            ikon = "🌾", panenMin = 105, panenMax = 120, jarakTanam = "25 × 25 cm",
+            ikon = "\uF7D8", panenMin = 105, panenMax = 120, jarakTanam = "25 × 25 cm",
             populasiPerHa = 160000,
             deskripsi = "Tanaman pangan utama. Dosis acuan: Urea 225 kg/ha, SP-36 100 kg/ha, KCl 100 kg/ha, dibagi 3 kali aplikasi.",
             fase = listOf(
@@ -76,7 +76,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "jagung", nama = "Jagung", latin = "Zea mays", kategori = "Tanaman Pangan",
-            ikon = "🌽", panenMin = 95, panenMax = 110, jarakTanam = "75 × 20 cm",
+            ikon = "\uF4D8", panenMin = 95, panenMax = 110, jarakTanam = "75 × 20 cm",
             populasiPerHa = 66000,
             deskripsi = "Dosis acuan: Urea 350 kg/ha, SP-36 150 kg/ha, KCl 100 kg/ha + pupuk kandang 2.000 kg/ha sebagai dasar.",
             fase = listOf(
@@ -94,7 +94,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "kedelai", nama = "Kedelai", latin = "Glycine max", kategori = "Tanaman Pangan",
-            ikon = "🫛", panenMin = 75, panenMax = 90, jarakTanam = "40 × 15 cm",
+            ikon = "\uF06C", panenMin = 75, panenMax = 90, jarakTanam = "40 × 15 cm",
             populasiPerHa = 166000,
             deskripsi = "Kedelai mengikat N dari udara (bintil akar), jadi Urea rendah. Dosis acuan: Urea 50, SP-36 100, KCl 100 kg/ha, semua sebagai pupuk dasar.",
             fase = listOf(
@@ -109,7 +109,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "cabai-merah", nama = "Cabai Merah", latin = "Capsicum annuum", kategori = "Hortikultura",
-            ikon = "🌶️", panenMin = 75, panenMax = 120, jarakTanam = "60 × 50 cm",
+            ikon = "\uF816", panenMin = 75, panenMax = 120, jarakTanam = "60 × 50 cm",
             populasiPerHa = 33000,
             deskripsi = "Dosis acuan: pupuk kandang 10 ton/ha sebagai dasar, lalu NPK susulan bertahap. Panen bertahap berkali-kali mulai ±75 HST.",
             fase = listOf(
@@ -128,7 +128,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "cabai-rawit", nama = "Cabai Rawit", latin = "Capsicum frutescens", kategori = "Hortikultura",
-            ikon = "🌶️", panenMin = 70, panenMax = 150, jarakTanam = "60 × 50 cm",
+            ikon = "\uF816", panenMin = 70, panenMax = 150, jarakTanam = "60 × 50 cm",
             populasiPerHa = 33000,
             deskripsi = "Lebih bandel & berumur panjang dari cabai merah. Dosis mirip, sedikit lebih ringan di awal.",
             fase = listOf(
@@ -147,7 +147,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "tomat", nama = "Tomat", latin = "Solanum lycopersicum", kategori = "Hortikultura",
-            ikon = "🍅", panenMin = 60, panenMax = 100, jarakTanam = "60 × 50 cm",
+            ikon = "\uF5D1", panenMin = 60, panenMax = 100, jarakTanam = "60 × 50 cm",
             populasiPerHa = 33000,
             deskripsi = "Dosis acuan: kandang 10 ton/ha + SP-36 dasar, NPK susulan bertahap. Tomat peka genangan & kekurangan kalsium (busuk ujung buah).",
             fase = listOf(
@@ -165,7 +165,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "bawang-merah", nama = "Bawang Merah", latin = "Allium ascalonicum", kategori = "Hortikultura",
-            ikon = "🧅", panenMin = 55, panenMax = 70, jarakTanam = "15 × 15 cm",
+            ikon = "\uF5FD", panenMin = 55, panenMax = 70, jarakTanam = "15 × 15 cm",
             populasiPerHa = 400000,
             deskripsi = "Dosis acuan per ha: kandang 5 ton, SP-36 200, KCl 200 (dibagi 2), ZA/Urea bertahap. Umbi peka genangan.",
             fase = listOf(
@@ -182,7 +182,7 @@ object TanamanDB {
         ),
         Tanaman(
             id = "mentimun", nama = "Mentimun", latin = "Cucumis sativus", kategori = "Hortikultura",
-            ikon = "🥒", panenMin = 35, panenMax = 60, jarakTanam = "60 × 40 cm",
+            ikon = "\uF787", panenMin = 35, panenMax = 60, jarakTanam = "60 × 40 cm",
             populasiPerHa = 41000,
             deskripsi = "Umur pendek, panen cepat mulai ±35 HST. Dosis acuan: kandang 5 ton/ha + NPK bertahap tiap 10 hari.",
             fase = listOf(

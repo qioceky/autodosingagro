@@ -5,29 +5,24 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,10 +37,11 @@ val BiruTerang = Color(0xFF3E97DD)
 val BiruMuda = Color(0xFFD9EAFB)
 val BiruSangatMuda = Color(0xFFEFF6FE)
 val Hijau = Color(0xFF22B14C)
-val Latar = Color(0xFFF3F8FE)
+val Latar = Color(0xFFFAFBFC)
 val TeksGelap = Color(0xFF12263A)
 val TeksAbu = Color(0xFF5B7186)
 val Oranye = Color(0xFFF5A623)
+val Garis = Color(0xFFE3EAF1)
 
 val fmtTanggal: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
 
@@ -63,6 +59,18 @@ class MainActivity : ComponentActivity() {
             ) { App() }
         }
     }
+}
+
+/** Kartu minimalis: putih, garis tepi tipis, sudut 14dp, tanpa bayangan. */
+@Composable
+fun Kartu(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(0.dp),
+        border = CardDefaults.outlinedCardBorder(),
+        modifier = modifier
+    ) { Column(content = content) }
 }
 
 @Composable
@@ -114,29 +122,29 @@ fun App() {
 fun BottomNav(tab: Tab, onTab: (Tab) -> Unit) {
     Box {
         Surface(
-            modifier = Modifier.fillMaxWidth().padding(top = 26.dp),
-            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-            color = Color.White, shadowElevation = 12.dp
+            modifier = Modifier.fillMaxWidth().padding(top = 24.dp),
+            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+            color = Color.White, shadowElevation = 4.dp
         ) {
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                NavItem("🏠", "Beranda", tab == Tab.BERANDA) { onTab(Tab.BERANDA) }
-                NavItem("🌿", "Tanaman", tab == Tab.TANAMAN) { onTab(Tab.TANAMAN) }
-                Spacer(Modifier.width(56.dp))
-                NavItem("📈", "Pantau", tab == Tab.PANTAU) { onTab(Tab.PANTAU) }
-                NavItem("👤", "Info", tab == Tab.INFO) { onTab(Tab.INFO) }
+                NavItem(Fa.HOUSE, "Beranda", tab == Tab.BERANDA) { onTab(Tab.BERANDA) }
+                NavItem(Fa.LEAF, "Tanaman", tab == Tab.TANAMAN) { onTab(Tab.TANAMAN) }
+                Spacer(Modifier.width(52.dp))
+                NavItem(Fa.CHART, "Pantau", tab == Tab.PANTAU) { onTab(Tab.PANTAU) }
+                NavItem(Fa.GEAR, "Pengaturan", tab == Tab.INFO) { onTab(Tab.INFO) }
             }
         }
         Box(
-            Modifier.align(Alignment.TopCenter).size(62.dp).clip(CircleShape)
-                .background(Brush.linearGradient(listOf(BiruTerang, Biru)))
+            Modifier.align(Alignment.TopCenter).size(56.dp).clip(CircleShape)
+                .background(Biru)
                 .clickable { onTab(Tab.DOSIS) },
             contentAlignment = Alignment.Center
         ) {
-            Text("D", color = Color.White, fontSize = 30.sp, fontWeight = FontWeight.ExtraBold)
+            FaIcon(Fa.SCALE, size = 24.sp, color = Color.White)
         }
     }
 }
@@ -144,13 +152,13 @@ fun BottomNav(tab: Tab, onTab: (Tab) -> Unit) {
 @Composable
 fun NavItem(ikon: String, label: String, aktif: Boolean, onClick: () -> Unit) {
     Column(
-        Modifier.clip(RoundedCornerShape(12.dp)).clickable { onClick() }.padding(horizontal = 10.dp, vertical = 4.dp),
+        Modifier.clip(RoundedCornerShape(10.dp)).clickable { onClick() }.padding(horizontal = 10.dp, vertical = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(ikon, fontSize = 22.sp)
+        FaIcon(ikon, size = 20.sp, color = if (aktif) Biru else TeksAbu)
+        Spacer(Modifier.height(2.dp))
         Text(label, fontSize = 11.sp, fontWeight = if (aktif) FontWeight.Bold else FontWeight.Normal,
-            color = if (aktif) BiruKartu else TeksAbu)
-        if (aktif) Box(Modifier.size(5.dp).clip(CircleShape).background(BiruKartu))
+            color = if (aktif) Biru else TeksAbu)
     }
 }
 
@@ -158,17 +166,17 @@ fun NavItem(ikon: String, label: String, aktif: Boolean, onClick: () -> Unit) {
 fun LingkaranProgres(persen: Float, ukuran: Int, tebal: Float, warna: Color = Hijau) {
     Box(Modifier.size(ukuran.dp), contentAlignment = Alignment.Center) {
         Canvas(Modifier.size(ukuran.dp)) {
-            drawArc(color = Color.White.copy(alpha = 0.25f), startAngle = -90f, sweepAngle = 360f,
+            drawArc(color = Garis, startAngle = -90f, sweepAngle = 360f,
                 useCenter = false, style = Stroke(width = tebal, cap = StrokeCap.Round))
             drawArc(color = warna, startAngle = -90f, sweepAngle = 360f * persen.coerceIn(0f, 1f),
                 useCenter = false, style = Stroke(width = tebal, cap = StrokeCap.Round))
         }
-        Text("${(persen * 100).toInt()}%", color = Color.White, fontWeight = FontWeight.ExtraBold,
+        Text("${(persen * 100).toInt()}%", color = TeksGelap, fontWeight = FontWeight.ExtraBold,
             fontSize = (ukuran / 4.2).sp)
     }
 }
 
-/* ---------------- BERANDA (mengikuti referensi tampilan) ---------------- */
+/* ---------------- BERANDA (minimalis, ikon Font Awesome) ---------------- */
 
 @Composable
 fun BerandaScreen(
@@ -185,23 +193,21 @@ fun BerandaScreen(
 
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            // Header biru gradasi seperti referensi
+            // Header biru rata (flat) — tanpa gradasi
             Box(
-                Modifier.fillMaxWidth()
-                    .background(Brush.verticalGradient(listOf(Color(0xFF2E6DB0), Color(0xFF6FB2E8))))
-                    .padding(start = 18.dp, end = 18.dp, top = 20.dp, bottom = 64.dp)
+                Modifier.fillMaxWidth().background(Biru)
+                    .padding(start = 18.dp, end = 18.dp, top = 18.dp, bottom = 58.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(54.dp).clip(CircleShape).background(BiruGelap), contentAlignment = Alignment.Center) {
-                        Text("🌱", fontSize = 26.sp)
+                    Box(Modifier.size(48.dp).clip(CircleShape).background(Color.White), contentAlignment = Alignment.Center) {
+                        FaIcon(Fa.SEEDLING, size = 22.sp, color = Biru)
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text("Halo ${if (nama.isBlank()) "Siswa ATPH" else nama},", color = Color.White,
-                            fontSize = 22.sp, fontWeight = FontWeight.ExtraBold)
-                        Text("Siswa SMK • Jurusan ATPH", color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+                            fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text("Siswa SMK • Jurusan ATPH", color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
                     }
-                    // Pill ON / OFF seperti referensi
                     Row(
                         Modifier.clip(RoundedCornerShape(50)).background(Color.White)
                             .clickable { monitoringOn = !monitoringOn }.padding(3.dp),
@@ -209,105 +215,90 @@ fun BerandaScreen(
                     ) {
                         Box(
                             Modifier.clip(RoundedCornerShape(50))
-                                .background(if (monitoringOn) BiruTerang else Color.Transparent)
+                                .background(if (monitoringOn) Biru else Color.Transparent)
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
-                        ) { Text("ON", fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                        ) { Text("ON", fontSize = 11.sp, fontWeight = FontWeight.Bold,
                             color = if (monitoringOn) Color.White else TeksAbu) }
                         Box(
                             Modifier.clip(RoundedCornerShape(50))
-                                .background(if (!monitoringOn) BiruGelap else Color.Transparent)
+                                .background(if (!monitoringOn) Biru else Color.Transparent)
                                 .padding(horizontal = 10.dp, vertical = 4.dp)
-                        ) { Text("OFF", fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                        ) { Text("OFF", fontSize = 11.sp, fontWeight = FontWeight.Bold,
                             color = if (!monitoringOn) Color.White else TeksAbu) }
                     }
-                    Spacer(Modifier.width(8.dp))
-                    Box(Modifier.size(42.dp).clip(RoundedCornerShape(12.dp)).background(BiruKartu),
-                        contentAlignment = Alignment.Center) {
-                        Text("🔔", fontSize = 19.sp)
-                    }
+                    Spacer(Modifier.width(10.dp))
+                    FaIcon(Fa.BELL, size = 19.sp, color = Color.White)
                 }
             }
         }
         item {
-            // Kartu progres gelap, menimpa header seperti referensi
-            Box(Modifier.padding(horizontal = 18.dp).offset(y = (-48).dp)) {
-                Card(
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = BiruKartu),
-                    elevation = CardDefaults.cardElevation(8.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(Modifier.padding(18.dp)) {
+            Box(Modifier.padding(horizontal = 18.dp).offset(y = (-42).dp)) {
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            LingkaranProgres(progres, 92, 14f)
-                            Spacer(Modifier.width(16.dp))
+                            LingkaranProgres(progres, 84, 11f)
+                            Spacer(Modifier.width(14.dp))
                             Column(Modifier.weight(1f)) {
-                                Text("Progres Pertumbuhan Kamu", color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                                Spacer(Modifier.height(4.dp))
-                                Text(buildString {
-                                    append("$faseSelesai"); append(" dari $faseTotal Fase ")
-                                    append(tanamanUtama?.nama ?: ""); append(" Selesai")
-                                }, color = Color.White, fontSize = 15.sp)
-                                Spacer(Modifier.height(10.dp))
+                                Text("Progres Pertumbuhan Kamu", color = TeksGelap, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                                Spacer(Modifier.height(3.dp))
+                                Text("$faseSelesai dari $faseTotal Fase ${tanamanUtama?.nama ?: ""} Selesai",
+                                    color = TeksGelap, fontSize = 14.sp)
+                                Spacer(Modifier.height(9.dp))
                                 LinearProgressIndicator(
-                                    progress = { progres }, color = Hijau,
-                                    trackColor = Color.White.copy(alpha = 0.3f),
-                                    modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(50))
+                                    progress = { progres }, color = Hijau, trackColor = Garis,
+                                    modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(50))
                                 )
-                                Spacer(Modifier.height(8.dp))
+                                Spacer(Modifier.height(7.dp))
                                 Text(
                                     if (utama != null && tanamanUtama != null)
                                         "${utama.label} • Umur $hstUtama HST • ${tanamanUtama.fasePada(hstUtama)?.nama ?: "Menjelang Panen"}"
                                     else "Contoh: Padi • Umur 25 HST • Fase Vegetatif / Anakan — tambah tanamanmu di menu Pantau",
-                                    color = Color.White.copy(alpha = 0.8f), fontSize = 12.sp
+                                    color = TeksAbu, fontSize = 12.sp
                                 )
                             }
                         }
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(12.dp))
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                             Button(
                                 onClick = onPantau,
-                                colors = ButtonDefaults.buttonColors(containerColor = BiruTerang),
-                                shape = RoundedCornerShape(50)
-                            ) { Text("Lanjut Pantau  ➜", fontWeight = FontWeight.Bold) }
+                                colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("Lanjut Pantau", fontWeight = FontWeight.SemiBold)
+                                Spacer(Modifier.width(8.dp))
+                                FaIcon(Fa.ARROW_R, size = 14.sp, color = Color.White)
+                            }
                         }
                     }
                 }
             }
         }
         item {
-            Column(Modifier.padding(horizontal = 18.dp).offset(y = (-32).dp)) {
-                Text("Menu Utama", fontSize = 19.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap)
+            Column(Modifier.padding(horizontal = 18.dp).offset(y = (-26).dp)) {
+                Text("Menu Utama", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
                 Spacer(Modifier.height(12.dp))
                 val menu = listOf(
-                    Triple("📚", "Jenis\nTanaman", Tab.TANAMAN),
-                    Triple("📅", "Umur\nTanaman", Tab.PANTAU),
-                    Triple("⚖️", "Dosis\nPupuk", Tab.DOSIS),
-                    Triple("📋", "Jadwal\nPupuk", Tab.TANAMAN),
-                    Triple("📣", "Tanam\nBaru", Tab.PANTAU),
-                    Triple("🗓️", "Catat\nTumbuh", Tab.PANTAU),
-                    Triple("📁", "Rekapan", Tab.PANTAU),
-                    Triple("🧮", "Kalkulator\nDosis", Tab.DOSIS)
+                    Triple(Fa.BOOK_OPEN, "Jenis\nTanaman", Tab.TANAMAN),
+                    Triple(Fa.CALENDAR, "Umur\nTanaman", Tab.PANTAU),
+                    Triple(Fa.SCALE, "Dosis\nPupuk", Tab.DOSIS),
+                    Triple(Fa.CLIPBOARD, "Jadwal\nPupuk", Tab.TANAMAN),
+                    Triple(Fa.BULLHORN, "Tanam\nBaru", Tab.PANTAU),
+                    Triple(Fa.NOTE, "Catat\nTumbuh", Tab.PANTAU),
+                    Triple(Fa.FOLDER, "Rekapan", Tab.PANTAU),
+                    Triple(Fa.CALC, "Kalkulator\nDosis", Tab.DOSIS)
                 )
-                menu.chunked(4).forEachIndexed { idx, rowItems ->
+                menu.chunked(4).forEach { rowItems ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowItems.forEach { (ikon, label, target) ->
-                            Card(
-                                shape = RoundedCornerShape(18.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = if (idx == 0 && label.startsWith("Jenis")) BiruKartu else BiruMuda
-                                ),
-                                modifier = Modifier.weight(1f).clickable { onMenu(target) }
-                            ) {
+                            Kartu(Modifier.weight(1f).clickable { onMenu(target) }) {
                                 Column(
                                     Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 4.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Text(ikon, fontSize = 26.sp)
-                                    Spacer(Modifier.height(6.dp))
+                                    FaIcon(ikon, size = 22.sp, color = Biru)
+                                    Spacer(Modifier.height(7.dp))
                                     Text(label, fontSize = 11.sp, textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = if (idx == 0 && label.startsWith("Jenis")) Color.White else TeksGelap)
+                                        fontWeight = FontWeight.Medium, color = TeksGelap)
                                 }
                             }
                         }
@@ -317,31 +308,27 @@ fun BerandaScreen(
             }
         }
         item {
-            Column(Modifier.padding(start = 18.dp).offset(y = (-16).dp)) {
+            Column(Modifier.padding(start = 18.dp).offset(y = (-12).dp)) {
                 Row(Modifier.fillMaxWidth().padding(end = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Kategori Tanaman", fontSize = 19.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap,
+                    Text("Kategori Tanaman", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TeksGelap,
                         modifier = Modifier.weight(1f))
-                    Text("Lihat Semua", color = Biru, fontSize = 14.sp,
+                    Text("Lihat Semua", color = Biru, fontSize = 13.sp,
                         modifier = Modifier.clickable { onMenu(Tab.TANAMAN) })
                 }
                 Spacer(Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(end = 18.dp)) {
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(end = 18.dp)) {
                     items(TanamanDB.semua) { t ->
-                        val warna = listOf(BiruKartu, Biru, Color(0xFF14532D), Color(0xFF7C2D12))
-                        Card(
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(containerColor = warna[TanamanDB.semua.indexOf(t) % warna.size]),
-                            modifier = Modifier.width(190.dp).clickable { onDetail(t.id) }
-                        ) {
-                            Column(Modifier.padding(16.dp)) {
-                                Text("${t.ikon}  ${t.nama}", color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
-                                Text("*${t.jadwal.size} Jadwal Pupuk • Panen ${t.panenMin}–${t.panenMax} HST",
-                                    color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
-                                Spacer(Modifier.height(10.dp))
+                        Kartu(Modifier.width(180.dp).clickable { onDetail(t.id) }) {
+                            Column(Modifier.padding(14.dp)) {
+                                FaIcon(t.ikon, size = 24.sp, color = Biru)
+                                Spacer(Modifier.height(8.dp))
+                                Text(t.nama, color = TeksGelap, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                                Text("${t.jadwal.size} Jadwal Pupuk • Panen ${t.panenMin}–${t.panenMax} HST",
+                                    color = TeksAbu, fontSize = 12.sp)
+                                Spacer(Modifier.height(9.dp))
                                 LinearProgressIndicator(
-                                    progress = { 0.5f }, color = Hijau,
-                                    trackColor = Color.White.copy(alpha = 0.3f),
-                                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(50))
+                                    progress = { 0.5f }, color = Hijau, trackColor = Garis,
+                                    modifier = Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(50))
                                 )
                             }
                         }
@@ -351,7 +338,7 @@ fun BerandaScreen(
         }
         item {
             Column(Modifier.padding(horizontal = 18.dp)) {
-                Text("Aktifitas Harian", fontSize = 19.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap)
+                Text("Aktifitas Harian", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
                 Spacer(Modifier.height(10.dp))
                 val faseAktif = tanamanUtama?.fasePada(hstUtama)
                 val tugas = listOf(
@@ -365,17 +352,13 @@ fun BerandaScreen(
                 )
                 var centang by remember { mutableStateOf(setOf<Int>()) }
                 tugas.forEachIndexed { i, t ->
-                    Card(
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(2.dp),
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                            .clickable { centang = if (i in centang) centang - i else centang + i }
-                    ) {
-                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text(if (i in centang) "✅" else "⬜", fontSize = 20.sp)
+                    Kartu(Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                        .clickable { centang = if (i in centang) centang - i else centang + i }) {
+                        Row(Modifier.padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(if (i in centang) Fa.SQ_CHECK else Fa.SQUARE, size = 19.sp,
+                                color = if (i in centang) Hijau else TeksAbu)
                             Spacer(Modifier.width(10.dp))
-                            Text(t, fontSize = 14.sp, color = if (i in centang) TeksAbu else TeksGelap)
+                            Text(t, fontSize = 13.sp, color = if (i in centang) TeksAbu else TeksGelap)
                         }
                     }
                 }

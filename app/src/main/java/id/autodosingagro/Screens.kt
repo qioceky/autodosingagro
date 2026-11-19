@@ -1,6 +1,9 @@
 package id.autodosingagro
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -25,7 +29,8 @@ import java.time.LocalDate
 @Composable
 fun JudulHalaman(judul: String, sub: String) {
     Column(Modifier.fillMaxWidth().padding(18.dp)) {
-        Text(judul, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap)
+        Text(judul, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+        Spacer(Modifier.height(2.dp))
         Text(sub, fontSize = 13.sp, color = TeksAbu)
     }
 }
@@ -35,13 +40,19 @@ fun PilihanTanaman(terpilih: String, onPilih: (String) -> Unit) {
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 18.dp)) {
         items(TanamanDB.semua) { t ->
             val aktif = t.id == terpilih
-            Box(
+            Row(
                 Modifier.clip(RoundedCornerShape(50))
-                    .background(if (aktif) Biru else BiruMuda)
+                    .background(if (aktif) Biru else Color.White)
+                    .border(1.dp, if (aktif) Biru else Garis, RoundedCornerShape(50))
                     .clickable { onPilih(t.id) }
-                    .padding(horizontal = 14.dp, vertical = 8.dp)
-            ) { Text("${t.ikon} ${t.nama}", color = if (aktif) Color.White else TeksGelap,
-                fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+                    .padding(horizontal = 13.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FaIcon(t.ikon, size = 14.sp, color = if (aktif) Color.White else Biru)
+                Spacer(Modifier.width(7.dp))
+                Text(t.nama, color = if (aktif) Color.White else TeksGelap,
+                    fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+            }
         }
     }
 }
@@ -52,7 +63,8 @@ fun Field(label: String, value: String, onChange: (String) -> Unit, angka: Boole
         value = value, onValueChange = onChange, label = { Text(label) },
         placeholder = if (hint.isNotBlank()) ({ Text(hint) }) else null,
         keyboardOptions = KeyboardOptions(keyboardType = if (angka) KeyboardType.Decimal else KeyboardType.Text),
-        singleLine = true, modifier = Modifier.fillMaxWidth()
+        singleLine = true, modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
     )
 }
 
@@ -61,26 +73,21 @@ fun Field(label: String, value: String, onChange: (String) -> Unit, angka: Boole
 @Composable
 fun TanamanScreen(onDetail: (String) -> Unit) {
     LazyColumn(Modifier.fillMaxSize()) {
-        item { JudulHalaman("Jenis Tanaman 🌱", "Tanaman pangan & hortikultura untuk praktik ATPH — ketuk untuk fase & jadwal pupuknya") }
+        item { JudulHalaman("Jenis Tanaman", "Tanaman pangan & hortikultura untuk praktik ATPH — ketuk untuk fase & jadwal pupuknya") }
         items(TanamanDB.semua) { t ->
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(3.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
-                    .clickable { onDetail(t.id) }
-            ) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(BiruSangatMuda),
-                        contentAlignment = Alignment.Center) { Text(t.ikon, fontSize = 28.sp) }
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)
+                .clickable { onDetail(t.id) }) {
+                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(50.dp).clip(RoundedCornerShape(12.dp)).background(BiruSangatMuda),
+                        contentAlignment = Alignment.Center) { FaIcon(t.ikon, size = 22.sp, color = Biru) }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(t.nama, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+                        Text(t.nama, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
                         Text(t.latin, fontSize = 12.sp, fontStyle = FontStyle.Italic, color = TeksAbu)
                         Text("${t.kategori} • Panen ${t.panenMin}–${t.panenMax} HST • ${t.jadwal.size}× pemupukan",
                             fontSize = 12.sp, color = Biru)
                     }
-                    Text("›", fontSize = 26.sp, color = TeksAbu)
+                    FaIcon(Fa.CHEV_R, size = 14.sp, color = TeksAbu)
                 }
             }
         }
@@ -93,41 +100,36 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("‹", fontSize = 34.sp, color = Biru, modifier = Modifier.clickable { onBack() }.padding(end = 10.dp))
+                FaIcon(Fa.CHEV_L, size = 20.sp, color = Biru,
+                    modifier = Modifier.clickable { onBack() }.padding(end = 14.dp))
+                Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(BiruSangatMuda),
+                    contentAlignment = Alignment.Center) { FaIcon(tanaman.ikon, size = 20.sp, color = Biru) }
+                Spacer(Modifier.width(10.dp))
                 Column {
-                    Text("${tanaman.ikon} ${tanaman.nama}", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap)
-                    Text("${tanaman.latin} • ${tanaman.kategori}", fontSize = 13.sp, fontStyle = FontStyle.Italic, color = TeksAbu)
+                    Text(tanaman.nama, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+                    Text("${tanaman.latin} • ${tanaman.kategori}", fontSize = 12.sp, fontStyle = FontStyle.Italic, color = TeksAbu)
                 }
             }
         }
         item {
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = BiruKartu),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)
-            ) {
-                Column(Modifier.padding(16.dp)) {
-                    Text(tanaman.deskripsi, color = Color.White, fontSize = 14.sp)
-                    Spacer(Modifier.height(10.dp))
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
+                Column(Modifier.padding(14.dp)) {
+                    Text(tanaman.deskripsi, color = TeksGelap, fontSize = 13.sp)
+                    Spacer(Modifier.height(8.dp))
                     Text("Jarak tanam: ${tanaman.jarakTanam}  •  Populasi ±${"%,d".format(tanaman.populasiPerHa).replace(',', '.')} tanaman/ha",
-                        color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
-                    Text("Umur panen: ${tanaman.panenMin}–${tanaman.panenMax} HST", color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+                        color = TeksAbu, fontSize = 12.sp)
+                    Text("Umur panen: ${tanaman.panenMin}–${tanaman.panenMax} HST", color = TeksAbu, fontSize = 12.sp)
                 }
             }
             Spacer(Modifier.height(16.dp))
-            Text("Fase Pertumbuhan (Umur Tanaman)", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
+            Text("Fase Pertumbuhan (Umur Tanaman)", fontSize = 17.sp, fontWeight = FontWeight.Bold,
                 color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp))
             Spacer(Modifier.height(8.dp))
         }
         items(tanaman.fase) { f ->
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(2.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
-            ) {
-                Column(Modifier.padding(14.dp)) {
-                    Text("${f.nama}  •  ${f.hstMulai}–${f.hstSelesai} HST", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 15.sp)
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)) {
+                Column(Modifier.padding(13.dp)) {
+                    Text("${f.nama}  •  ${f.hstMulai}–${f.hstSelesai} HST", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 14.sp)
                     Text(f.ciri, fontSize = 13.sp, color = TeksGelap)
                     Text("Perawatan: ${f.perawatan}", fontSize = 13.sp, color = TeksAbu)
                 }
@@ -135,37 +137,31 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
         }
         item {
             Spacer(Modifier.height(16.dp))
-            Text("Jadwal & Dosis Pemupukan", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
+            Text("Jadwal & Dosis Pemupukan", fontSize = 17.sp, fontWeight = FontWeight.Bold,
                 color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp))
             Spacer(Modifier.height(8.dp))
         }
         items(tanaman.jadwal) { app ->
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = BiruSangatMuda),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
-            ) {
-                Column(Modifier.padding(14.dp)) {
-                    Text("${app.label} — umur ${app.hst} HST", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 15.sp)
-                    app.pupuk.forEach { p -> Text("• ${p.nama}: ${"%.0f".format(p.kgPerHa)} kg/ha", fontSize = 14.sp, color = TeksGelap) }
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)) {
+                Column(Modifier.padding(13.dp)) {
+                    Text("${app.label} — umur ${app.hst} HST", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 14.sp)
+                    app.pupuk.forEach { p -> Text("• ${p.nama}: ${"%.0f".format(p.kgPerHa)} kg/ha", fontSize = 13.sp, color = TeksGelap) }
                     if (app.catatan.isNotBlank()) Text(app.catatan, fontSize = 12.sp, color = TeksAbu)
                 }
             }
         }
         item {
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(2.dp),
-                modifier = Modifier.fillMaxWidth().padding(18.dp)
-            ) {
+            Kartu(Modifier.fillMaxWidth().padding(18.dp)) {
                 Column(Modifier.padding(14.dp)) {
                     Text("Total Satu Musim Tanam", fontWeight = FontWeight.Bold, color = TeksGelap)
-                    tanaman.totalPupuk().forEach { p -> Text("• ${p.nama}: ${"%.0f".format(p.kgPerHa)} kg/ha", fontSize = 14.sp) }
+                    tanaman.totalPupuk().forEach { p -> Text("• ${p.nama}: ${"%.0f".format(p.kgPerHa)} kg/ha", fontSize = 13.sp) }
                     Spacer(Modifier.height(10.dp))
                     Button(onClick = onHitung, modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Biru)) {
-                        Text("Hitung Dosis untuk Petak Saya ⚖️")
+                        colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                        shape = RoundedCornerShape(10.dp)) {
+                        FaIcon(Fa.SCALE, size = 15.sp, color = Color.White)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Hitung Dosis untuk Petak Saya")
                     }
                 }
             }
@@ -177,18 +173,26 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
 
 @Composable
 fun LabelInput(teks: String) {
-    Text(teks, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = BiruKartu,
+    Text(teks, fontSize = 14.sp, fontWeight = FontWeight.Bold, color = BiruKartu,
         modifier = Modifier.padding(top = 6.dp))
 }
 
 @Composable
-fun ChipPilih(teks: String, aktif: Boolean, onClick: () -> Unit) {
-    Box(
+fun ChipPilih(teks: String, aktif: Boolean, ikon: String? = null, onClick: () -> Unit) {
+    Row(
         Modifier.clip(RoundedCornerShape(50))
-            .background(if (aktif) Biru else BiruMuda)
+            .background(if (aktif) Biru else Color.White)
+            .border(1.dp, if (aktif) Biru else Garis, RoundedCornerShape(50))
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 9.dp)
-    ) { Text(teks, color = if (aktif) Color.White else TeksGelap, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (ikon != null) {
+            FaIcon(ikon, size = 13.sp, color = if (aktif) Color.White else Biru)
+            Spacer(Modifier.width(7.dp))
+        }
+        Text(teks, color = if (aktif) Color.White else TeksGelap, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+    }
 }
 
 @Composable
@@ -207,7 +211,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
 
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            JudulHalaman("Kalkulator Dosis ⚖️", "Pilih jenis tanaman, lalu isi 5 input di bawah — dosis dihitung sesuai umur, cara pemupukan, jenis pupuk & musim")
+            JudulHalaman("Kalkulator Dosis", "Pilih jenis tanaman, lalu isi 5 input di bawah — dosis dihitung sesuai umur, cara pemupukan, jenis pupuk & musim")
             PilihanTanaman(tanamanId) { tanamanId = it; hasil = null }
             Spacer(Modifier.height(10.dp))
             Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -221,8 +225,8 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
 
                 LabelInput("3. Cara Pemupukan")
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ChipPilih("a. Tabur 🖐️", cara == "Tabur") { cara = "Tabur" }
-                    ChipPilih("b. Kocor 💧", cara == "Kocor") { cara = "Kocor" }
+                    ChipPilih("a. Tabur", cara == "Tabur", Fa.HAND) { cara = "Tabur" }
+                    ChipPilih("b. Kocor", cara == "Kocor", Fa.DROPLET) { cara = "Kocor" }
                 }
                 Text(
                     if (cara == "Tabur") "Pupuk ditaburkan / ditugal di sekeliling tanaman lalu ditutup tanah tipis."
@@ -231,11 +235,10 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                 )
 
                 LabelInput("4. Jenis Pupuk (bisa pilih banyak)")
-                // Chip multi-pilih dalam baris-baris 3 kolom sederhana
                 PupukDB.semua.chunked(2).forEach { baris ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         baris.forEach { p ->
-                            ChipPilih(p.nama, p.nama in pupukPilih) {
+                            ChipPilih(p.nama, p.nama in pupukPilih, Fa.FLASK) {
                                 pupukPilih = if (p.nama in pupukPilih) pupukPilih - p.nama else pupukPilih + p.nama
                             }
                         }
@@ -246,8 +249,8 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
 
                 LabelInput("5. Musim")
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    ChipPilih("a. Kemarau ☀️", musim == "Kemarau") { musim = "Kemarau" }
-                    ChipPilih("b. Hujan 🌧️", musim == "Hujan") { musim = "Hujan" }
+                    ChipPilih("a. Kemarau", musim == "Kemarau", Fa.SUN) { musim = "Kemarau" }
+                    ChipPilih("b. Hujan", musim == "Hujan", Fa.RAIN) { musim = "Hujan" }
                 }
 
                 LabelInput("Tambahan: Luas Petak")
@@ -268,10 +271,10 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                             else -> { pesan = ""; hasil = tanaman to hst }
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Biru),
-                    shape = RoundedCornerShape(16.dp)
-                ) { Text("Hitung Dosis Pupuk", fontSize = 16.sp, fontWeight = FontWeight.Bold) }
+                    shape = RoundedCornerShape(12.dp)
+                ) { Text("Hitung Dosis Pupuk", fontSize = 15.sp, fontWeight = FontWeight.Bold) }
             }
             Spacer(Modifier.height(8.dp))
         }
@@ -284,34 +287,40 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
             val berikut = t.aplikasiBerikutnya(hst)
             val volumeKocorMl = if (musim == "Kemarau") 250 else 150
             item {
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = BiruKartu),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("${t.ikon} ${t.nama} • Usia $hst HST", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+                Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(t.ikon, size = 18.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("${t.nama} • Usia $hst HST", color = TeksGelap, fontSize = 17.sp, fontWeight = FontWeight.Bold)
+                        }
                         Text("Fase: ${fase?.nama ?: if (hst > t.panenMax) "Sudah lewat masa tanam" else "Persiapan / sebelum tanam"}",
-                            color = Color.White, fontSize = 14.sp)
-                        if (fase != null) Text(fase.perawatan, color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+                            color = TeksGelap, fontSize = 13.sp)
+                        if (fase != null) Text(fase.perawatan, color = TeksAbu, fontSize = 12.sp)
                         Text("Cara: $cara  •  Musim: $musim  •  Progres ke panen ${(t.progres(hst) * 100).toInt()}%",
-                            color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+                            color = TeksAbu, fontSize = 12.sp)
                     }
                 }
             }
             item {
                 Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE7F6EC)),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F9F1)),
+                    elevation = CardDefaults.cardElevation(0.dp),
+                    border = CardDefaults.outlinedCardBorder(),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)
                 ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(
-                            if (berikut != null) "💊 Dosis Aplikasi: ${berikut.label} (usia ${berikut.hst} HST" +
-                                (if (berikut.hst > hst) ", ${berikut.hst - hst} hari lagi" else ", SEKARANG") + ")"
-                            else "💊 Dosis Aplikasi (jadwal tanaman ini sudah selesai — pakai dosis umum)",
-                            fontWeight = FontWeight.ExtraBold, color = Color(0xFF14532D), fontSize = 16.sp
-                        )
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.FLASK, size = 15.sp, color = Color(0xFF14532D))
+                            Spacer(Modifier.width(8.dp))
+                            Text(
+                                if (berikut != null) "Dosis Aplikasi: ${berikut.label} (usia ${berikut.hst} HST" +
+                                    (if (berikut.hst > hst) ", ${berikut.hst - hst} hari lagi" else ", SEKARANG") + ")"
+                                else "Dosis Aplikasi (jadwal tanaman ini sudah selesai — pakai dosis umum)",
+                                fontWeight = FontWeight.Bold, color = Color(0xFF14532D), fontSize = 15.sp
+                            )
+                        }
                         Spacer(Modifier.height(6.dp))
                         pupukPilih.forEach { namaPupuk ->
                             val dariJadwal = berikut?.pupuk?.firstOrNull { it.nama.equals(namaPupuk, true) || (namaPupuk == "NPK" && it.nama.startsWith("NPK")) }
@@ -323,17 +332,17 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                                 (if (cara == "Kocor" && faktor != 1.0) " • disesuaikan utk kocor (×${faktor} dari dosis tabur, diberikan lebih sering ±tiap 7 hari)" else "")
                             val tidakLarut = cara == "Kocor" && pilihan?.bisaKocor == false
                             Text("• $namaPupuk ($sumber): ${formatDosis(kgHa, luas, jumlah, t.populasiPerHa)}",
-                                fontSize = 15.sp, color = TeksGelap, fontWeight = FontWeight.SemiBold)
+                                fontSize = 14.sp, color = TeksGelap, fontWeight = FontWeight.SemiBold)
                             if (cara == "Kocor" && !tidakLarut && t.populasiPerHa > 0) {
                                 val gramPerTanaman = kgHa * 1000.0 / t.populasiPerHa
                                 val gramPerLiter = gramPerTanaman / (volumeKocorMl / 1000.0)
                                 val totalLiter = if (jumlah != null) " • total larutan ±${"%.1f".format(volumeKocorMl * jumlah / 1000.0)} liter untuk $jumlah tanaman" else ""
                                 Text("   Larutkan ${"%.1f".format(gramPerTanaman)} gram/tanaman dalam $volumeKocorMl ml air (±${"%.0f".format(gramPerLiter)} gram/liter)$totalLiter",
-                                    fontSize = 13.sp, color = TeksGelap)
+                                    fontSize = 12.sp, color = TeksGelap)
                             }
                             if (tidakLarut) {
-                                Text("   ⚠️ $namaPupuk tidak larut air — jangan dikocor, berikan dengan cara TABUR/tugal.",
-                                    fontSize = 13.sp, color = Color(0xFFB3261E))
+                                Text("   Perhatian: $namaPupuk tidak larut air — jangan dikocor, berikan dengan cara TABUR/tugal.",
+                                    fontSize = 12.sp, color = Color(0xFFB3261E))
                             }
                             if (pilihan != null && pilihan.catatan.isNotBlank()) {
                                 Text("   ${pilihan.catatan}", fontSize = 12.sp, color = TeksAbu)
@@ -343,14 +352,13 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                 }
             }
             item {
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(2.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("🧭 Cara Aplikasi — $cara, Musim $musim", fontWeight = FontWeight.ExtraBold, color = BiruKartu, fontSize = 15.sp)
+                Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.INFO, size = 15.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Cara Aplikasi — $cara, Musim $musim", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 14.sp)
+                        }
                         Spacer(Modifier.height(6.dp))
                         val panduan = when {
                             cara == "Tabur" && musim == "Kemarau" -> listOf(
@@ -374,26 +382,21 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                                 "Tunda kocor bila hujan deras turun — larutan akan langsung tercuci."
                             )
                         }
-                        panduan.forEach { Text("• $it", fontSize = 13.sp, color = TeksGelap) }
+                        panduan.forEach { Text("• $it", fontSize = 12.sp, color = TeksGelap) }
                     }
                 }
             }
             item {
-                Text("Semua Jadwal ${t.nama} (sudah diskalakan ke petakmu)", fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                Text("Semua Jadwal ${t.nama} (sudah diskalakan ke petakmu)", fontSize = 15.sp, fontWeight = FontWeight.Bold,
                     color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp))
             }
             items(t.jadwal) { app ->
-                Card(
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(2.dp),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
-                ) {
+                Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)) {
                     Column(Modifier.padding(12.dp)) {
-                        Text("${app.label} — ${app.hst} HST ${if (app.hst <= hst) "✓ sudah waktunya / lewat" else ""}",
-                            fontWeight = FontWeight.SemiBold, color = BiruKartu, fontSize = 14.sp)
+                        Text("${app.label} — ${app.hst} HST ${if (app.hst <= hst) "(sudah waktunya / lewat)" else ""}",
+                            fontWeight = FontWeight.SemiBold, color = BiruKartu, fontSize = 13.sp)
                         app.pupuk.forEach { p ->
-                            Text("• ${p.nama}: ${formatDosis(p.kgPerHa, luas, jumlah, t.populasiPerHa)}", fontSize = 13.sp)
+                            Text("• ${p.nama}: ${formatDosis(p.kgPerHa, luas, jumlah, t.populasiPerHa)}", fontSize = 12.sp)
                         }
                     }
                 }
@@ -427,9 +430,9 @@ fun PantauScreen(
     var catatan by remember { mutableStateOf("") }
 
     LazyColumn(Modifier.fillMaxSize()) {
-        item { JudulHalaman("Pantau Pertumbuhan 📈", "Tanaman yang kamu tanam, umurnya (HST), fasenya & jadwal pupuk berikutnya") }
+        item { JudulHalaman("Pantau Pertumbuhan", "Tanaman yang kamu tanam, umurnya (HST), fasenya & jadwal pupuk berikutnya") }
         if (tanamanSaya.isEmpty()) {
-            item { Text("Belum ada tanaman. Tambahkan lewat formulir di bawah 👇", color = TeksAbu,
+            item { Text("Belum ada tanaman. Tambahkan lewat formulir di bawah.", color = TeksAbu,
                 modifier = Modifier.padding(horizontal = 18.dp)) }
         }
         items(tanamanSaya) { ts ->
@@ -438,44 +441,47 @@ fun PantauScreen(
             val fase = t.fasePada(hst)
             val berikut = t.aplikasiBerikutnya(hst)
             val logSaya = logs.filter { it.tanamanSayaId == ts.id }.sortedByDescending { it.tanggal }
-            Card(
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(3.dp),
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
-            ) {
-                Column(Modifier.padding(16.dp)) {
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Column(Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("${t.ikon} ${ts.label}", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap,
+                        FaIcon(t.ikon, size = 17.sp, color = Biru)
+                        Spacer(Modifier.width(8.dp))
+                        Text(ts.label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TeksGelap,
                             modifier = Modifier.weight(1f))
-                        Text("🗑️", fontSize = 18.sp, modifier = Modifier.clickable { onHapus(ts.id) })
+                        FaIcon(Fa.TRASH, size = 15.sp, color = TeksAbu,
+                            modifier = Modifier.clickable { onHapus(ts.id) })
                     }
                     Text("${t.nama} • Tanam ${ts.tanggalTanam.format(fmtTanggal)} • Umur $hst HST",
-                        fontSize = 13.sp, color = TeksAbu)
+                        fontSize = 12.sp, color = TeksAbu)
                     Text("Fase: ${fase?.nama ?: "Menjelang / lewat panen"} • Progres ${(t.progres(hst) * 100).toInt()}%",
-                        fontSize = 13.sp, color = Biru, fontWeight = FontWeight.SemiBold)
+                        fontSize = 12.sp, color = Biru, fontWeight = FontWeight.SemiBold)
                     LinearProgressIndicator(progress = { t.progres(hst) }, color = Hijau,
-                        trackColor = BiruMuda, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-                            .height(8.dp).clip(RoundedCornerShape(50)))
+                        trackColor = Garis, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            .height(7.dp).clip(RoundedCornerShape(50)))
                     if (berikut != null) {
-                        Text("💊 Pupuk berikutnya: ${berikut.label} di ${berikut.hst} HST" +
+                        Text("Pupuk berikutnya: ${berikut.label} di ${berikut.hst} HST" +
                             (if (berikut.hst > hst) " (${berikut.hst - hst} hari lagi)" else " — SEKARANG") +
                             ": ${berikut.pupuk.joinToString { p -> "${p.nama} ${formatDosis(p.kgPerHa, ts.luasM2.takeIf { it > 0 }, ts.jumlahTanaman.takeIf { it > 0 }, t.populasiPerHa)}" }}",
-                            fontSize = 13.sp, color = Color(0xFF14532D))
+                            fontSize = 12.sp, color = Color(0xFF14532D))
                     } else {
-                        Text("✅ Semua jadwal pupuk sudah lewat — fokus perawatan & panen.", fontSize = 13.sp, color = Color(0xFF14532D))
+                        Text("Semua jadwal pupuk sudah lewat — fokus perawatan & panen.", fontSize = 12.sp, color = Color(0xFF14532D))
                     }
                     if (logSaya.isNotEmpty()) {
                         val terakhir = logSaya.first()
-                        Text("📏 Terakhir dicatat ${terakhir.tanggal.format(fmtTanggal)}: tinggi ${terakhir.tinggiCm} cm, ${terakhir.jumlahDaun} daun, kondisi ${terakhir.kondisi}",
-                            fontSize = 13.sp, color = TeksGelap)
+                        Spacer(Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.RULER, size = 13.sp, color = TeksAbu)
+                            Spacer(Modifier.width(6.dp))
+                            Text("Terakhir dicatat ${terakhir.tanggal.format(fmtTanggal)}: tinggi ${terakhir.tinggiCm} cm, ${terakhir.jumlahDaun} daun, kondisi ${terakhir.kondisi}",
+                                fontSize = 12.sp, color = TeksGelap)
+                        }
                     }
                     Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(onClick = { logUntuk = if (logUntuk == ts.id) null else ts.id },
                             colors = ButtonDefaults.buttonColors(containerColor = Biru),
-                            shape = RoundedCornerShape(50)) { Text("Catat Tumbuh") }
+                            shape = RoundedCornerShape(10.dp)) { Text("Catat Tumbuh", fontSize = 13.sp) }
                         OutlinedButton(onClick = { logUntuk = if (logUntuk == ts.id) null else ts.id },
-                            shape = RoundedCornerShape(50)) { Text("Lihat Log (${logSaya.size})") }
+                            shape = RoundedCornerShape(10.dp)) { Text("Lihat Log (${logSaya.size})", fontSize = 13.sp) }
                     }
                     if (logUntuk == ts.id) {
                         Spacer(Modifier.height(10.dp))
@@ -485,11 +491,7 @@ fun PantauScreen(
                         Spacer(Modifier.height(8.dp))
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             items(listOf("Sehat", "Daun Menguning", "Layu", "Terserang Hama", "Lainnya")) { k ->
-                                Box(Modifier.clip(RoundedCornerShape(50))
-                                    .background(if (kondisi == k) Biru else BiruMuda)
-                                    .clickable { kondisi = k }.padding(horizontal = 10.dp, vertical = 6.dp)) {
-                                    Text(k, fontSize = 12.sp, color = if (kondisi == k) Color.White else TeksGelap)
-                                }
+                                ChipPilih(k, kondisi == k) { kondisi = k }
                             }
                         }
                         Spacer(Modifier.height(8.dp))
@@ -504,15 +506,17 @@ fun PantauScreen(
                                 tinggi = ""; daun = ""; catatan = ""; pesan = ""
                             }
                         }, modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = Hijau)) { Text("Simpan Catatan Pertumbuhan") }
+                            colors = ButtonDefaults.buttonColors(containerColor = Hijau),
+                            shape = RoundedCornerShape(10.dp)) { Text("Simpan Catatan Pertumbuhan", fontSize = 13.sp) }
                         logSaya.forEach { l ->
                             Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
                                     Text("${l.tanggal.format(fmtTanggal)} • ${l.tinggiCm} cm • ${l.jumlahDaun} daun • ${l.kondisi}",
-                                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                                     if (l.catatan.isNotBlank()) Text(l.catatan, fontSize = 12.sp, color = TeksAbu)
                                 }
-                                Text("🗑️", modifier = Modifier.clickable { onHapusLog(l.id) })
+                                FaIcon(Fa.TRASH, size = 13.sp, color = TeksAbu,
+                                    modifier = Modifier.clickable { onHapusLog(l.id) })
                             }
                         }
                     }
@@ -521,8 +525,11 @@ fun PantauScreen(
         }
         item {
             Spacer(Modifier.height(14.dp))
-            Text("➕ Tanam Baru", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap,
-                modifier = Modifier.padding(horizontal = 18.dp))
+            Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
+                FaIcon(Fa.PLUS, size = 15.sp, color = Biru)
+                Spacer(Modifier.width(8.dp))
+                Text("Tanam Baru", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+            }
             Spacer(Modifier.height(8.dp))
             PilihanTanaman(tanamanId) { tanamanId = it }
             Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -540,46 +547,158 @@ fun PantauScreen(
                             luas.toDoubleOrNull() ?: 0.0, jumlah.toIntOrNull() ?: 0))
                         label = ""; luas = ""; jumlah = ""; pesan = ""
                     }
-                }, modifier = Modifier.fillMaxWidth().height(52.dp),
+                }, modifier = Modifier.fillMaxWidth().height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Biru),
-                    shape = RoundedCornerShape(16.dp)) { Text("Simpan Tanaman Saya", fontWeight = FontWeight.Bold) }
+                    shape = RoundedCornerShape(12.dp)) { Text("Simpan Tanaman Saya", fontWeight = FontWeight.Bold) }
                 Spacer(Modifier.height(10.dp))
             }
         }
     }
 }
 
-/* ---------------- INFO ---------------- */
+/* ---------------- PENGATURAN (profil, pembaruan, tentang) ---------------- */
 
 @Composable
 fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit) {
+    val context = LocalContext.current
     var namaEdit by remember(nama) { mutableStateOf(nama) }
+    var statusUpdate by remember { mutableStateOf("belum") } // belum | memeriksa | terbaru | ada | gagal
+    var infoUpdate by remember { mutableStateOf<InfoUpdate?>(null) }
+    var pesanUpdate by remember { mutableStateOf("") }
+
+    fun bukaUrl(url: String) {
+        try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } catch (e: Exception) { }
+    }
+
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            JudulHalaman("Auto Dosing Agro Technology 🌾", "Aplikasi pemantau pertumbuhan tanaman & dosis pemupukan sesuai umur tanaman — untuk SMK jurusan ATPH (Agribisnis Tanaman Pangan dan Hortikultura)")
+            JudulHalaman("Pengaturan", "Profil, pembaruan aplikasi & tentang Auto Dosing Agro")
             Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Field("Nama kamu (tampil di Beranda)", namaEdit, { namaEdit = it }, hint = "contoh: Rizki")
-                Button(onClick = { onSimpanNama(namaEdit.trim()) },
-                    colors = ButtonDefaults.buttonColors(containerColor = Biru)) { Text("Simpan Nama") }
-                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White),
-                    elevation = CardDefaults.cardElevation(2.dp)) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("Cara Pakai", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
-                        Text("1️⃣ Buka menu Jenis Tanaman untuk mempelajari fase & jadwal pupuk tiap tanaman.\n" +
-                            "2️⃣ Tambahkan tanamanmu di menu Pantau (nama petak + tanggal tanam) — umur (HST), fase & progresnya dihitung otomatis.\n" +
-                            "3️⃣ Ketuk tombol D di tengah untuk Kalkulator Dosis: dosis dihitung per luas petak (kg/gram) dan per tanaman (gram/tanaman).\n" +
-                            "4️⃣ Catat tinggi & jumlah daun secara berkala lewat Catat Tumbuh untuk memantau pertumbuhan.", fontSize = 14.sp)
+
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.USER, size = 15.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Profil", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Field("Nama kamu (tampil di Beranda)", namaEdit, { namaEdit = it }, hint = "contoh: Rizki")
+                        Spacer(Modifier.height(8.dp))
+                        Button(onClick = { onSimpanNama(namaEdit.trim()) },
+                            colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                            shape = RoundedCornerShape(10.dp)) { Text("Simpan Nama", fontSize = 13.sp) }
                     }
                 }
-                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = BiruSangatMuda)) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("Tentang Dosis", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.UPDATE, size = 15.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Pembaruan Aplikasi", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text("Versi terpasang: v${BuildConfig.VERSION_NAME}", fontSize = 13.sp, color = TeksAbu)
+                        Spacer(Modifier.height(10.dp))
+                        when (statusUpdate) {
+                            "memeriksa" -> Row(verticalAlignment = Alignment.CenterVertically) {
+                                CircularProgressIndicator(Modifier.size(18.dp), color = Biru, strokeWidth = 2.dp)
+                                Spacer(Modifier.width(10.dp))
+                                Text("Memeriksa pembaruan…", fontSize = 13.sp)
+                            }
+                            "terbaru" -> Row(verticalAlignment = Alignment.CenterVertically) {
+                                FaIcon(Fa.CHECK, size = 14.sp, color = Hijau)
+                                Spacer(Modifier.width(8.dp))
+                                Text("Sudah versi terbaru.", fontSize = 13.sp, color = Color(0xFF14532D))
+                            }
+                            "gagal" -> Row(verticalAlignment = Alignment.Top) {
+                                FaIcon(Fa.WARN, size = 14.sp, color = Color(0xFFB3261E))
+                                Spacer(Modifier.width(8.dp))
+                                Text(pesanUpdate, fontSize = 13.sp, color = Color(0xFFB3261E))
+                            }
+                            "ada" -> {
+                                val u = infoUpdate
+                                if (u != null) {
+                                    Text("Ada versi baru: v${u.versiBaru}", fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold, color = Color(0xFF14532D))
+                                    if (u.catatan.isNotBlank()) {
+                                        Spacer(Modifier.height(4.dp))
+                                        Text(u.catatan, fontSize = 12.sp, color = TeksGelap, maxLines = 8)
+                                    }
+                                    Spacer(Modifier.height(8.dp))
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        if (u.urlApk != null) {
+                                            Button(onClick = { bukaUrl(u.urlApk) },
+                                                colors = ButtonDefaults.buttonColors(containerColor = Hijau),
+                                                shape = RoundedCornerShape(10.dp)) {
+                                                FaIcon(Fa.DOWNLOAD, size = 13.sp, color = Color.White)
+                                                Spacer(Modifier.width(7.dp))
+                                                Text("Unduh APK", fontSize = 13.sp)
+                                            }
+                                        }
+                                        OutlinedButton(onClick = { bukaUrl(u.urlRilis) },
+                                            shape = RoundedCornerShape(10.dp)) { Text("Halaman Rilis", fontSize = 13.sp) }
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Button(
+                            onClick = {
+                                statusUpdate = "memeriksa"
+                                UpdateChecker.cek(BuildConfig.VERSION_NAME) { update, error ->
+                                    when {
+                                        error != null -> { statusUpdate = "gagal"; pesanUpdate = error }
+                                        update != null -> { statusUpdate = "ada"; infoUpdate = update }
+                                        else -> statusUpdate = "terbaru"
+                                    }
+                                }
+                            },
+                            enabled = statusUpdate != "memeriksa",
+                            colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            FaIcon(Fa.UPDATE, size = 13.sp, color = Color.White)
+                            Spacer(Modifier.width(7.dp))
+                            Text("Periksa Pembaruan", fontSize = 13.sp)
+                        }
+                        Text("Pemeriksaan mengambil rilis terbaru dari GitHub (butuh internet). Unduhan APK tetap dari halaman rilis resmi repo aplikasi ini.",
+                            fontSize = 11.sp, color = TeksAbu)
+                    }
+                }
+
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.BOOK_OPEN, size = 15.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Cara Pakai", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text("1. Buka menu Jenis Tanaman untuk mempelajari fase & jadwal pupuk tiap tanaman.\n" +
+                            "2. Tambahkan tanamanmu di menu Pantau (nama petak + tanggal tanam) — umur (HST), fase & progresnya dihitung otomatis.\n" +
+                            "3. Ketuk tombol timbangan di tengah untuk Kalkulator Dosis: isi jumlah tanaman, usia, cara pemupukan, jenis pupuk & musim.\n" +
+                            "4. Catat tinggi & jumlah daun secara berkala lewat Catat Tumbuh untuk memantau pertumbuhan.", fontSize = 13.sp)
+                    }
+                }
+
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.INFO, size = 15.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Tentang Dosis", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        }
+                        Spacer(Modifier.height(6.dp))
                         Text("Dosis di aplikasi ini adalah acuan umum praktik ATPH per hektar (kg/ha) dari rekomendasi budidaya yang lazim dipakai. " +
                             "Kebutuhan nyata bisa berbeda menurut kesuburan tanah, varietas, musim & hasil uji tanah — konsultasikan dengan guru / penyuluh setempat. " +
-                            "HST = Hari Setelah Tanam. Pupuk dasar hortikultura sebagian diberikan sebelum tanam (HST negatif = hari sebelum tanam).", fontSize = 14.sp)
+                            "HST = Hari Setelah Tanam. Pupuk dasar hortikultura sebagian diberikan sebelum tanam (HST negatif = hari sebelum tanam).", fontSize = 13.sp)
                     }
                 }
-                Text("Versi 1.0.0 • Data tersimpan lokal di HP, tanpa internet & tanpa akun.", fontSize = 12.sp, color = TeksAbu)
+
+                Text("Auto Dosing Agro Technology v${BuildConfig.VERSION_NAME} • Ikon: Font Awesome Free 6.5.2 (CC BY 4.0), dibundel lokal. Data tanaman tersimpan lokal di HP.",
+                    fontSize = 11.sp, color = TeksAbu)
                 Spacer(Modifier.height(12.dp))
             }
         }
