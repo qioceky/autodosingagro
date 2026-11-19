@@ -33,6 +33,21 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.3.0 — monitoring makin lengkap, multifungsi
+
+Pilihan fitur dari sisi pengembang, sesuai tujuan aplikasi (monitoring + multifungsi):
+
+- **Perhatian Hari Ini** (Beranda) — peringatan otomatis dari data monitoring:
+  pupuk jatuh tempo ≤3 hari, panen ≤7 hari, lewat masa panen, dan tanaman yang
+  ≥7 hari belum dicatat pertumbuhannya.
+- **Grafik Pertumbuhan** (Pantau) — grafik garis tinggi tanaman dari log +
+  statistik kenaikan cm & rata-rata cm/hari.
+- **Diagnosa Gejala** — 9 gejala umum (daun kuning, bercak, layu, keriting,
+  bunga rontok, busuk ujung buah, dll) dengan kemungkinan penyebab & tindakan.
+- **Kalender Tanam** — tanaman yang cocok ditanam per bulan + musimnya.
+- **Usaha Tani** — catat biaya & hasil panen per petak, laba/rugi otomatis,
+  dan **Bagikan Rekap** ke aplikasi lain (mis. WhatsApp).
+
 ## v1.2.0
 
 - Semua emoji diganti ikon **Font Awesome Free Solid 6.5.2** (font dibundel

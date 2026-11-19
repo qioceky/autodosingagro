@@ -27,6 +27,16 @@ data class LogTumbuh(
     val catatan: String
 )
 
+data class Transaksi(
+    val id: Long,
+    val tanamanSayaId: Long,
+    val tanggal: LocalDate,
+    val jenis: String,          // "Biaya" / "Panen"
+    val keterangan: String,
+    val nominal: Long,          // Rupiah
+    val hasilKg: Double         // khusus Panen, 0 bila Biaya
+)
+
 class Store(context: Context) {
     private val prefs = context.getSharedPreferences("autodosing", Context.MODE_PRIVATE)
 
@@ -89,6 +99,37 @@ class Store(context: Context) {
             })
         }
         prefs.edit().putString("log_tumbuh", arr.toString()).apply()
+    }
+
+    fun loadTransaksi(): List<Transaksi> {
+        val raw = prefs.getString("transaksi", null) ?: return emptyList()
+        return try {
+            val arr = JSONArray(raw)
+            (0 until arr.length()).map { i ->
+                val o = arr.getJSONObject(i)
+                Transaksi(
+                    id = o.getLong("id"),
+                    tanamanSayaId = o.getLong("tanamanSayaId"),
+                    tanggal = LocalDate.parse(o.getString("tanggal")),
+                    jenis = o.optString("jenis", "Biaya"),
+                    keterangan = o.optString("keterangan", ""),
+                    nominal = o.optLong("nominal", 0),
+                    hasilKg = o.optDouble("hasilKg", 0.0)
+                )
+            }
+        } catch (e: Exception) { emptyList() }
+    }
+
+    fun saveTransaksi(list: List<Transaksi>) {
+        val arr = JSONArray()
+        list.forEach { t ->
+            arr.put(JSONObject().apply {
+                put("id", t.id); put("tanamanSayaId", t.tanamanSayaId)
+                put("tanggal", t.tanggal.toString()); put("jenis", t.jenis)
+                put("keterangan", t.keterangan); put("nominal", t.nominal); put("hasilKg", t.hasilKg)
+            })
+        }
+        prefs.edit().putString("transaksi", arr.toString()).apply()
     }
 
     fun namaPengguna(): String = prefs.getString("nama", "") ?: ""

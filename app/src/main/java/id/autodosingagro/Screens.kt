@@ -508,6 +508,10 @@ fun PantauScreen(
                         }, modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(containerColor = Hijau),
                             shape = RoundedCornerShape(10.dp)) { Text("Simpan Catatan Pertumbuhan", fontSize = 13.sp) }
+                        if (logSaya.size >= 2) {
+                            Spacer(Modifier.height(12.dp))
+                            GrafikTinggi(logSaya)
+                        }
                         logSaya.forEach { l ->
                             Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {

@@ -236,3 +236,56 @@ fun formatDosis(kgPerHa: Double, luasM2: Double?, jumlahTanaman: Int?, populasiP
     if (hasil.isEmpty()) return "%.0f kg/ha".format(kgPerHa)
     return hasil.joinToString("  •  ")
 }
+
+/** Kalender tanam: bulan-bulan (1-12) yang umumnya cocok untuk mulai tanam + catatan musim. */
+object KalenderDB {
+    val data: Map<String, Pair<String, List<Int>>> = mapOf(
+        "padi" to ("Musim hujan & awal kemarau — butuh air banyak" to listOf(10, 11, 12, 1, 3, 4, 5)),
+        "jagung" to ("Awal musim hujan atau akhir kemarau" to listOf(2, 3, 4, 8, 9, 10)),
+        "kedelai" to ("Kemarau awal, tanah lembap tidak tergenang (sering setelah panen padi)" to listOf(3, 4, 5, 6)),
+        "cabai-merah" to ("Akhir musim hujan / awal kemarau — hindari puncak hujan (rawan penyakit)" to listOf(3, 4, 5, 8, 9)),
+        "cabai-rawit" to ("Akhir musim hujan / awal kemarau, lebih bandel dari cabai merah" to listOf(3, 4, 5, 8, 9, 10)),
+        "tomat" to ("Musim kemarau — buah tidak mudah busuk & penyakit daun lebih ringan" to listOf(4, 5, 6, 7, 8)),
+        "bawang-merah" to ("Musim kemarau — umbi peka genangan & hujan" to listOf(4, 5, 6, 7, 8, 9)),
+        "mentimun" to ("Sepanjang tahun, terbaik awal hujan & awal kemarau" to listOf(2, 3, 4, 5, 8, 9, 10, 11))
+    )
+    fun musimBulan(bulan: Int): String = if (bulan in listOf(10, 11, 12, 1, 2, 3, 4)) "Musim Hujan" else "Musim Kemarau"
+}
+
+/** Diagnosa gejala sederhana berbasis aturan — bahan belajar, bukan pengganti penyuluh. */
+data class Gejala(
+    val nama: String, val ikon: String,
+    val kemungkinan: String, val tindakan: String
+)
+
+object GejalaDB {
+    val semua: List<Gejala> = listOf(
+        Gejala("Daun menguning merata", "\uF06C",
+            "Kekurangan nitrogen (N), atau akar tergenang sehingga penyerapan hara terganggu.",
+            "Beri pupuk sumber N (sesuai jadwal: NPK/KNO3) sebagai susulan; perbaiki drainase, jangan biarkan lahan becek."),
+        Gejala("Daun kuning di antara tulang daun", "\uF06C",
+            "Kekurangan magnesium (Mg) atau besi (Fe) — sering di tanah masam / terlalu sering dipupuk K tinggi.",
+            "Tabur kapur dolomit bila tanah masam; beri NPK seimbang, hindari KCl berlebihan sementara."),
+        Gejala("Bercak cokelat / hitam pada daun", "\uF06E",
+            "Penyakit bercak daun / antraknosa (jamur) — menyebar cepat di musim hujan & daun basah lama.",
+            "Buang & musnahkan daun/buah sakit (jangan dikompos di lahan), atur jarak & sirkulasi, fungisida sesuai label bila serangan meluas."),
+        Gejala("Daun berlubang / bekas gigitan", "\uF188",
+            "Hama pengunyah: ulat grayak, ulat buah, atau belalang.",
+            "Cek bagian bawah daun pagi/sore, ambil manual bila sedikit; bila ambang terlampaui pakai pestisida selektif sesuai label & bergilir bahan aktif."),
+        Gejala("Tanaman layu", "\uF2C9",
+            "Bila hanya siang & pulih sore: kekurangan air. Bila layu terus & pangkal batang berlendir/berbau: layu bakteri; bila batang cokelat kering: layu fusarium (jamur tanah).",
+            "Siram cukup & cek kelembapan. Tanaman layu bakteri/fusarium: cabut + musnahkan jauh dari lahan, jangan tanam sefamili di petak itu dulu, perbaiki drainase."),
+        Gejala("Daun keriting & mengecil", "\uF188",
+            "Sering virus yang dibawa kutu daun / thrips / kutu kebul, atau kelebihan herbisida.",
+            "Tanaman terinfeksi parah dicabut; kendalikan serangga vektor (perangkap kuning, pestisida selektif), cabut gulma inang di sekitar lahan."),
+        Gejala("Bunga banyak rontok", "\uF043",
+            "Air tidak stabil (kering lalu basah berlebihan), kekurangan K / boron, atau suhu ekstrem.",
+            "Jaga penyiraman teratur, beri KNO3 / MKP lewat kocor sesuai kalkulator, pasang mulsa agar kelembapan stabil."),
+        Gejala("Ujung buah busuk (tomat/cabai)", "\uF5D1",
+            "Busuk ujung buah (blossom end rot) — kekurangan kalsium di buah, biasanya karena air tidak stabil, bukan selalu karena tanah miskin Ca.",
+            "Stabilkan penyiraman, beri dolomit/sumber kalsium saat olah tanah, hindari pupuk N berlebihan yang memacu daun."),
+        Gejala("Pertumbuhan kerdil", "\uF4D8",
+            "Tanah padat / masam, pupuk dasar kurang, atau akar terganggu (genangan, nematoda).",
+            "Gemburkan tanah, cek pH (target 5,5–7), tambah pupuk kandang/kompos matang, lalu susulan NPK sesuai jadwal umur tanaman.")
+    )
+}

@@ -81,6 +81,8 @@ fun App() {
     var detailId by remember { mutableStateOf<String?>(null) }
     var tanamanSaya by remember { mutableStateOf(store.loadTanamanSaya()) }
     var logs by remember { mutableStateOf(store.loadLog()) }
+    var transaksi by remember { mutableStateOf(store.loadTransaksi()) }
+    var layar by remember { mutableStateOf<String?>(null) }
     var nama by remember { mutableStateOf(store.namaPengguna()) }
 
     fun simpanTanaman(list: List<TanamanSaya>) { tanamanSaya = list; store.saveTanamanSaya(list) }
@@ -90,14 +92,23 @@ fun App() {
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f)) {
                 when {
+                    layar == "diagnosa" -> DiagnosaScreen(onBack = { layar = null })
+                    layar == "kalender" -> KalenderScreen(onBack = { layar = null })
+                    layar == "usaha" -> UsahaScreen(
+                        tanamanSaya = tanamanSaya, logs = logs, transaksi = transaksi,
+                        onTambah = { val l = transaksi + it; transaksi = l; store.saveTransaksi(l) },
+                        onHapus = { id -> val l = transaksi.filterNot { t -> t.id == id }; transaksi = l; store.saveTransaksi(l) },
+                        onBack = { layar = null }
+                    )
                     detailId != null -> DetailTanamanScreen(
                         tanaman = TanamanDB.byId(detailId!!)!!,
                         onBack = { detailId = null },
                         onHitung = { detailId = null; tab = Tab.DOSIS }
                     )
                     tab == Tab.BERANDA -> BerandaScreen(
-                        nama = nama, tanamanSaya = tanamanSaya,
+                        nama = nama, tanamanSaya = tanamanSaya, logs = logs,
                         onMenu = { t -> tab = t },
+                        onLayar = { layar = it },
                         onDetail = { detailId = it },
                         onPantau = { tab = Tab.PANTAU }
                     )
@@ -113,7 +124,7 @@ fun App() {
                     tab == Tab.INFO -> InfoScreen(nama = nama, onSimpanNama = { nama = it; store.simpanNama(it) })
                 }
             }
-            BottomNav(tab = tab, onTab = { tab = it; detailId = null })
+            BottomNav(tab = tab, onTab = { tab = it; detailId = null; layar = null })
         }
     }
 }
@@ -180,8 +191,9 @@ fun LingkaranProgres(persen: Float, ukuran: Int, tebal: Float, warna: Color = Hi
 
 @Composable
 fun BerandaScreen(
-    nama: String, tanamanSaya: List<TanamanSaya>,
-    onMenu: (Tab) -> Unit, onDetail: (String) -> Unit, onPantau: () -> Unit
+    nama: String, tanamanSaya: List<TanamanSaya>, logs: List<LogTumbuh>,
+    onMenu: (Tab) -> Unit, onLayar: (String) -> Unit,
+    onDetail: (String) -> Unit, onPantau: () -> Unit
 ) {
     var monitoringOn by remember { mutableStateOf(true) }
     val utama = tanamanSaya.firstOrNull()
@@ -274,23 +286,69 @@ fun BerandaScreen(
             }
         }
         item {
+            // Perhatian Hari Ini — alert otomatis dari data monitoring
+            val peringatan = mutableListOf<String>()
+            tanamanSaya.forEach { ts ->
+                val t = TanamanDB.byId(ts.tanamanId) ?: return@forEach
+                val hst = ts.hst()
+                val berikut = t.aplikasiBerikutnya(hst)
+                if (berikut != null && berikut.hst - hst in 0..3) {
+                    peringatan.add("${ts.label}: pupuk ${berikut.label} " +
+                        (if (berikut.hst == hst) "HARI INI" else "${berikut.hst - hst} hari lagi") +
+                        " (${berikut.pupuk.joinToString { p -> p.nama }})")
+                }
+                val kePanen = t.panenMin - hst
+                if (kePanen in 0..7) peringatan.add("${ts.label}: panen ±$kePanen hari lagi (${t.nama})")
+                if (hst > t.panenMax) peringatan.add("${ts.label}: sudah lewat masa panen ${t.nama} ($hst HST)")
+                val logTerakhir = logs.filter { it.tanamanSayaId == ts.id }.maxByOrNull { it.tanggal }
+                val acuan = logTerakhir?.tanggal ?: ts.tanggalTanam
+                val selisih = LocalDate.now().toEpochDay() - acuan.toEpochDay()
+                if (selisih >= 7) peringatan.add("${ts.label}: belum dicatat pertumbuhannya $selisih hari — catat tinggi & daunnya")
+            }
+            Column(Modifier.padding(horizontal = 18.dp).offset(y = (-30).dp)) {
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(if (peringatan.isEmpty()) Fa.CHECK else Fa.WARN, size = 15.sp,
+                                color = if (peringatan.isEmpty()) Hijau else Oranye)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Perhatian Hari Ini", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        if (peringatan.isEmpty()) {
+                            Text(
+                                if (tanamanSaya.isEmpty()) "Belum ada tanaman dipantau — tambah tanamanmu di menu Pantau, peringatan pupuk & panen tampil di sini."
+                                else "Semua terpantau — tidak ada pupuk jatuh tempo, panen dekat, atau catatan yang tertunda hari ini.",
+                                fontSize = 12.sp, color = TeksAbu)
+                        } else {
+                            peringatan.forEach { Text("• $it", fontSize = 12.sp, color = TeksGelap) }
+                        }
+                    }
+                }
+            }
+        }
+        item {
             Column(Modifier.padding(horizontal = 18.dp).offset(y = (-26).dp)) {
                 Text("Menu Utama", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
                 Spacer(Modifier.height(12.dp))
-                val menu = listOf(
-                    Triple(Fa.BOOK_OPEN, "Jenis\nTanaman", Tab.TANAMAN),
-                    Triple(Fa.CALENDAR, "Umur\nTanaman", Tab.PANTAU),
-                    Triple(Fa.SCALE, "Dosis\nPupuk", Tab.DOSIS),
-                    Triple(Fa.CLIPBOARD, "Jadwal\nPupuk", Tab.TANAMAN),
-                    Triple(Fa.BULLHORN, "Tanam\nBaru", Tab.PANTAU),
-                    Triple(Fa.NOTE, "Catat\nTumbuh", Tab.PANTAU),
-                    Triple(Fa.FOLDER, "Rekapan", Tab.PANTAU),
-                    Triple(Fa.CALC, "Kalkulator\nDosis", Tab.DOSIS)
+                val menu: List<Triple<String, String, () -> Unit>> = listOf(
+                    Triple(Fa.BOOK_OPEN, "Jenis\nTanaman") { onMenu(Tab.TANAMAN) },
+                    Triple(Fa.CALENDAR, "Umur\nTanaman") { onMenu(Tab.PANTAU) },
+                    Triple(Fa.SCALE, "Dosis\nPupuk") { onMenu(Tab.DOSIS) },
+                    Triple(Fa.CLIPBOARD, "Jadwal\nPupuk") { onMenu(Tab.TANAMAN) },
+                    Triple(Fa.BULLHORN, "Tanam\nBaru") { onMenu(Tab.PANTAU) },
+                    Triple(Fa.NOTE, "Catat\nTumbuh") { onMenu(Tab.PANTAU) },
+                    Triple(Fa.FOLDER, "Rekapan") { onLayar("usaha") },
+                    Triple(Fa.CALC, "Kalkulator\nDosis") { onMenu(Tab.DOSIS) },
+                    Triple(Fa.STETHO, "Diagnosa\nGejala") { onLayar("diagnosa") },
+                    Triple(Fa.CALENDAR, "Kalender\nTanam") { onLayar("kalender") },
+                    Triple(Fa.COINS, "Usaha\nTani") { onLayar("usaha") },
+                    Triple(Fa.GEAR, "Pengaturan") { onMenu(Tab.INFO) }
                 )
                 menu.chunked(4).forEach { rowItems ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        rowItems.forEach { (ikon, label, target) ->
-                            Kartu(Modifier.weight(1f).clickable { onMenu(target) }) {
+                        rowItems.forEach { (ikon, label, aksi) ->
+                            Kartu(Modifier.weight(1f).clickable { aksi() }) {
                                 Column(
                                     Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 4.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally

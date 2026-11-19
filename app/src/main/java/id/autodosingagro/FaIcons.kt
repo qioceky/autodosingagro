@@ -61,6 +61,13 @@ object Fa {
     const val PEN = "\uF304"
     const val EYE = "\uF06E"
     const val LAYER = "\uF5FD"
+    const val STETHO = "\uF0F1"
+    const val COINS = "\uF51E"
+    const val SHARE = "\uF1E0"
+    const val BUG = "\uF188"
+    const val WALLET = "\uF555"
+    const val TREND = "\uE098"
+    const val TEMP = "\uF2C9"
 }
 
 private object FaTypeface {
