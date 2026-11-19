@@ -33,6 +33,17 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.3.1
+
+- **Ikon tanaman diganti total** — ikon Font Awesome untuk tanaman memang tidak
+  ada yang persis (mentimun tadinya wortel, tomat apel, bawang merah layer).
+  Sekarang memakai set ikon **IconOven (lisensi MIT)** yang digambar sesuai
+  tanamannya: padi = malai gandum, jagung = tongkol berkulit, kedelai = polong
+  berbiji, cabai merah = cabai, cabai rawit = cabai + api (lebih pedas),
+  tomat = tomat berkelopak, bawang merah = umbi berakar, mentimun = mentimun
+  + irisannya. Dibundel sebagai vector drawable, tetap offline & mengikuti warna tema.
+  Ikon UI lain tetap Font Awesome.
+
 ## v1.3.0 — monitoring makin lengkap, multifungsi
 
 Pilihan fitur dari sisi pengembang, sesuai tujuan aplikasi (monitoring + multifungsi):

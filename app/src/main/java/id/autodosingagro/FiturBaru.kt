@@ -98,7 +98,7 @@ fun KalenderScreen(onBack: () -> Unit) {
             val cocok = info?.second?.contains(bulan) == true
             Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)) {
                 Row(Modifier.padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
-                    FaIcon(t.ikon, size = 19.sp, color = if (cocok) Biru else TeksAbu)
+                    TanamanIcon(t, size = 19.dp, color = if (cocok) Biru else TeksAbu)
                     Spacer(Modifier.width(10.dp))
                     Column(Modifier.weight(1f)) {
                         Text(t.nama, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,

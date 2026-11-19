@@ -48,7 +48,7 @@ fun PilihanTanaman(terpilih: String, onPilih: (String) -> Unit) {
                     .padding(horizontal = 13.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                FaIcon(t.ikon, size = 14.sp, color = if (aktif) Color.White else Biru)
+                TanamanIcon(t, size = 14.dp, color = if (aktif) Color.White else Biru)
                 Spacer(Modifier.width(7.dp))
                 Text(t.nama, color = if (aktif) Color.White else TeksGelap,
                     fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
@@ -79,7 +79,7 @@ fun TanamanScreen(onDetail: (String) -> Unit) {
                 .clickable { onDetail(t.id) }) {
                 Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(50.dp).clip(RoundedCornerShape(12.dp)).background(BiruSangatMuda),
-                        contentAlignment = Alignment.Center) { FaIcon(t.ikon, size = 22.sp, color = Biru) }
+                        contentAlignment = Alignment.Center) { TanamanIcon(t, size = 22.dp, color = Biru) }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(t.nama, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
@@ -103,7 +103,7 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
                 FaIcon(Fa.CHEV_L, size = 20.sp, color = Biru,
                     modifier = Modifier.clickable { onBack() }.padding(end = 14.dp))
                 Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(BiruSangatMuda),
-                    contentAlignment = Alignment.Center) { FaIcon(tanaman.ikon, size = 20.sp, color = Biru) }
+                    contentAlignment = Alignment.Center) { TanamanIcon(tanaman, size = 20.dp, color = Biru) }
                 Spacer(Modifier.width(10.dp))
                 Column {
                     Text(tanaman.nama, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
@@ -290,7 +290,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                 Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
                     Column(Modifier.padding(14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            FaIcon(t.ikon, size = 18.sp, color = Biru)
+                            TanamanIcon(t, size = 18.dp, color = Biru)
                             Spacer(Modifier.width(8.dp))
                             Text("${t.nama} • Usia $hst HST", color = TeksGelap, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         }
@@ -444,7 +444,7 @@ fun PantauScreen(
             Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
                 Column(Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        FaIcon(t.ikon, size = 17.sp, color = Biru)
+                        TanamanIcon(t, size = 17.dp, color = Biru)
                         Spacer(Modifier.width(8.dp))
                         Text(ts.label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TeksGelap,
                             modifier = Modifier.weight(1f))
@@ -701,7 +701,7 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit) {
                     }
                 }
 
-                Text("Auto Dosing Agro Technology v${BuildConfig.VERSION_NAME} • Ikon: Font Awesome Free 6.5.2 (CC BY 4.0), dibundel lokal. Data tanaman tersimpan lokal di HP.",
+                Text("Auto Dosing Agro Technology v${BuildConfig.VERSION_NAME} • Ikon UI: Font Awesome Free 6.5.2 (CC BY 4.0); ikon tanaman: set IconOven (MIT) — keduanya dibundel lokal. Data tanaman tersimpan lokal di HP.",
                     fontSize = 11.sp, color = TeksAbu)
                 Spacer(Modifier.height(12.dp))
             }
