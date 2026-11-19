@@ -205,15 +205,19 @@ object TanamanDB {
 
 /** Pilihan jenis pupuk untuk Kalkulator Dosis. dosisUmum = acuan umum per aplikasi (kg/ha)
  *  bila pupuk tidak ada di jadwal tanaman yang dipilih. */
-data class PupukPilihan(val nama: String, val dosisUmumKgPerHa: Double, val bisaKocor: Boolean, val catatan: String = "")
+data class PupukPilihan(
+    val nama: String, val dosisUmumKgPerHa: Double, val bisaKocor: Boolean, val catatan: String = "",
+    /** Faktor dosis bila diberikan dgn cara KOCOR dibanding TABUR (tiap pupuk beda, sesuai kolomnya). */
+    val faktorKocor: Double = 1.0
+)
 
 object PupukDB {
     // Jenis pupuk di Kalkulator Dosis — sesuai ketetapan user (2026-11-19): hanya 4 ini.
     val semua: List<PupukPilihan> = listOf(
-        PupukPilihan("NPK", 150.0, true, "Pupuk majemuk N-P-K seimbang, praktis untuk susulan — di jadwal tertulis sbg NPK 16-16-16."),
-        PupukPilihan("KNO3", 50.0, true, "Sumber K + N nitrat, cocok fase generatif (bunga & buah) & dikocor."),
-        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor."),
-        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah, umbi & ketahanan tanaman.")
+        PupukPilihan("NPK", 150.0, true, "Pupuk majemuk N-P-K seimbang, praktis untuk susulan — di jadwal tertulis sbg NPK 16-16-16.", faktorKocor = 0.67),
+        PupukPilihan("KNO3", 50.0, true, "Sumber K + N nitrat, cocok fase generatif (bunga & buah) & dikocor.", faktorKocor = 0.8),
+        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor.", faktorKocor = 1.0),
+        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah, umbi & ketahanan tanaman.", faktorKocor = 0.7)
     )
     fun byNama(nama: String): PupukPilihan? = semua.firstOrNull { it.nama.equals(nama, ignoreCase = true) }
 }

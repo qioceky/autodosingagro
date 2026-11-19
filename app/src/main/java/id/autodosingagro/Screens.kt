@@ -232,7 +232,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
 
                 LabelInput("4. Jenis Pupuk (bisa pilih banyak)")
                 // Chip multi-pilih dalam baris-baris 3 kolom sederhana
-                PupukDB.semua.chunked(3).forEach { baris ->
+                PupukDB.semua.chunked(2).forEach { baris ->
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         baris.forEach { p ->
                             ChipPilih(p.nama, p.nama in pupukPilih) {
@@ -316,8 +316,11 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                         pupukPilih.forEach { namaPupuk ->
                             val dariJadwal = berikut?.pupuk?.firstOrNull { it.nama.equals(namaPupuk, true) || (namaPupuk == "NPK" && it.nama.startsWith("NPK")) }
                             val pilihan = PupukDB.byNama(namaPupuk)
-                            val kgHa = dariJadwal?.kgPerHa ?: pilihan?.dosisUmumKgPerHa ?: 0.0
-                            val sumber = if (dariJadwal != null) "dari jadwal ${t.nama}" else "dosis umum"
+                            val kgHaDasar = dariJadwal?.kgPerHa ?: pilihan?.dosisUmumKgPerHa ?: 0.0
+                            val faktor = if (cara == "Kocor") (pilihan?.faktorKocor ?: 1.0) else 1.0
+                            val kgHa = kgHaDasar * faktor
+                            val sumber = (if (dariJadwal != null) "dari jadwal ${t.nama}" else "dosis umum") +
+                                (if (cara == "Kocor" && faktor != 1.0) " • disesuaikan utk kocor (×${faktor} dari dosis tabur, diberikan lebih sering ±tiap 7 hari)" else "")
                             val tidakLarut = cara == "Kocor" && pilihan?.bisaKocor == false
                             Text("• $namaPupuk ($sumber): ${formatDosis(kgHa, luas, jumlah, t.populasiPerHa)}",
                                 fontSize = 15.sp, color = TeksGelap, fontWeight = FontWeight.SemiBold)
