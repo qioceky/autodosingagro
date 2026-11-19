@@ -19,8 +19,12 @@ tombol **D** (Dosis) besar di tengah.
    dari tanggal tanam.
 3. **Dosis Pemupukan** — jadwal pupuk dasar & susulan per tanaman (kg/ha)
    + **Kalkulator Dosis**: isi jenis tanaman, umur (HST) atau tanggal tanam,
-   luas petak (m²) dan jumlah tanaman → dosis nyata tampil dalam kg/gram
-   per petak dan gram per tanaman, termasuk aplikasi berikutnya & hitung mundur harinya.
+   Input kalkulator (v1.1): 1) jumlah tanaman, 2) usia tanaman (HST/tanggal tanam),
+   3) cara pemupukan — Tabur / Kocor, 4) jenis pupuk (12 pilihan, bisa banyak:
+   Urea, ZA, SP-36, TSP, KCl, NPK 16-16-16, NPK Phonska, KNO3, MKP, Pupuk Kandang,
+   Kompos, Kapur Dolomit), 5) musim — Kemarau / Hujan, plus luas petak. Hasil: dosis
+   per pupuk terpilih (dari jadwal tanaman atau dosis umum), resep larutan kocor
+   (gram/tanaman, ml air, total liter) & panduan cara aplikasi sesuai musim.
 4. **Pantau Pertumbuhan** — tambah tanaman/petak, progres ke panen, pengingat
    pupuk berikutnya, dan log pertumbuhan (tinggi cm, jumlah daun, kondisi, catatan).
 

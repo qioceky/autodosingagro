@@ -203,6 +203,28 @@ object TanamanDB {
     fun byId(id: String): Tanaman? = semua.firstOrNull { it.id == id }
 }
 
+/** Pilihan jenis pupuk untuk Kalkulator Dosis. dosisUmum = acuan umum per aplikasi (kg/ha)
+ *  bila pupuk tidak ada di jadwal tanaman yang dipilih. */
+data class PupukPilihan(val nama: String, val dosisUmumKgPerHa: Double, val bisaKocor: Boolean, val catatan: String = "")
+
+object PupukDB {
+    val semua: List<PupukPilihan> = listOf(
+        PupukPilihan("Urea", 75.0, true, "Sumber N — mudah larut & mudah tercuci air hujan."),
+        PupukPilihan("ZA", 100.0, true, "Sumber N + sulfur, agak mengasamkan tanah."),
+        PupukPilihan("SP-36", 100.0, false, "Sumber P — sukar larut, berikan sbg pupuk dasar dgn cara tabur/tugal."),
+        PupukPilihan("TSP", 75.0, false, "Sumber P kadar tinggi — sama seperti SP-36, cara tabur/tugal."),
+        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah & umbi."),
+        PupukPilihan("NPK 16-16-16", 150.0, true, "Pupuk majemuk seimbang, praktis untuk susulan."),
+        PupukPilihan("NPK Phonska", 150.0, true, "Pupuk majemuk subsidi (15-15-15), susulan bertahap."),
+        PupukPilihan("KNO3", 50.0, true, "Sumber K + N nitrat, cocok fase generatif & dikocor."),
+        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor/disemprot."),
+        PupukPilihan("Pupuk Kandang", 1000.0, false, "Organik — berikan sbg pupuk dasar, campur ke tanah. Tidak dikocor."),
+        PupukPilihan("Kompos", 1000.0, false, "Organik — pupuk dasar, campur ke bedengan. Tidak dikocor."),
+        PupukPilihan("Kapur Dolomit", 500.0, false, "Menaikkan pH tanah masam — 1× semusim saat olah tanah, cara tabur.")
+    )
+    fun byNama(nama: String): PupukPilihan? = semua.firstOrNull { it.nama.equals(nama, ignoreCase = true) }
+}
+
 /** Format dosis: dari kg/ha menjadi kebutuhan nyata berdasarkan luas atau jumlah tanaman. */
 fun formatDosis(kgPerHa: Double, luasM2: Double?, jumlahTanaman: Int?, populasiPerHa: Int): String {
     val hasil = mutableListOf<String>()

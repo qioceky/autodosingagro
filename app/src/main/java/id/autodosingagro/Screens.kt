@@ -176,35 +176,97 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
 /* ---------------- KALKULATOR DOSIS ---------------- */
 
 @Composable
+fun LabelInput(teks: String) {
+    Text(teks, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = BiruKartu,
+        modifier = Modifier.padding(top = 6.dp))
+}
+
+@Composable
+fun ChipPilih(teks: String, aktif: Boolean, onClick: () -> Unit) {
+    Box(
+        Modifier.clip(RoundedCornerShape(50))
+            .background(if (aktif) Biru else BiruMuda)
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 9.dp)
+    ) { Text(teks, color = if (aktif) Color.White else TeksGelap, fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+}
+
+@Composable
 fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
     var tanamanId by remember { mutableStateOf(TanamanDB.semua.first().id) }
+    var jumlahText by remember { mutableStateOf("") }
     var hstText by remember { mutableStateOf("") }
     var tanggalText by remember { mutableStateOf(LocalDate.now().minusDays(25).toString()) }
     var luasText by remember { mutableStateOf("100") }
-    var jumlahText by remember { mutableStateOf("") }
-    var hasil by remember { mutableStateOf<Triple<Tanaman, Int, String>?>(null) }
+    var cara by remember { mutableStateOf("Tabur") }
+    var pupukPilih by remember { mutableStateOf(setOf("Urea", "SP-36", "KCl")) }
+    var musim by remember { mutableStateOf("Kemarau") }
+    var hasil by remember { mutableStateOf<Pair<Tanaman, Int>?>(null) }
     var pesan by remember { mutableStateOf("") }
     val tanaman = TanamanDB.byId(tanamanId)!!
 
     LazyColumn(Modifier.fillMaxSize()) {
         item {
-            JudulHalaman("Kalkulator Dosis ⚖️", "Pilih jenis tanaman, isi umur tanaman — dosis pupuk dihitung sesuai fase & luas petakmu")
+            JudulHalaman("Kalkulator Dosis ⚖️", "Pilih jenis tanaman, lalu isi 5 input di bawah — dosis dihitung sesuai umur, cara pemupukan, jenis pupuk & musim")
             PilihanTanaman(tanamanId) { tanamanId = it; hasil = null }
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(10.dp))
             Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+
+                LabelInput("1. Jumlah Tanaman")
+                Field("Jumlah tanaman yang dipupuk", jumlahText, { jumlahText = it }, angka = true, hint = "contoh: 320")
+
+                LabelInput("2. Usia Tanaman")
                 Field("Umur tanaman (HST) — isi ini ATAU tanggal tanam di bawah", hstText, { hstText = it }, angka = true, hint = "contoh: 25")
                 Field("Tanggal tanam (TTTT-BB-HH)", tanggalText, { tanggalText = it }, hint = "2026-11-01")
-                Field("Luas petak (m²)", luasText, { luasText = it }, angka = true, hint = "contoh: 100")
-                Field("Jumlah tanaman (opsional, untuk gram/tanaman)", jumlahText, { jumlahText = it }, angka = true, hint = "contoh: 320")
+
+                LabelInput("3. Cara Pemupukan")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ChipPilih("a. Tabur 🖐️", cara == "Tabur") { cara = "Tabur" }
+                    ChipPilih("b. Kocor 💧", cara == "Kocor") { cara = "Kocor" }
+                }
+                Text(
+                    if (cara == "Tabur") "Pupuk ditaburkan / ditugal di sekeliling tanaman lalu ditutup tanah tipis."
+                    else "Pupuk dilarutkan dalam air lalu disiramkan ke pangkal tanaman.",
+                    fontSize = 12.sp, color = TeksAbu
+                )
+
+                LabelInput("4. Jenis Pupuk (bisa pilih banyak)")
+                // Chip multi-pilih dalam baris-baris 3 kolom sederhana
+                PupukDB.semua.chunked(3).forEach { baris ->
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        baris.forEach { p ->
+                            ChipPilih(p.nama, p.nama in pupukPilih) {
+                                pupukPilih = if (p.nama in pupukPilih) pupukPilih - p.nama else pupukPilih + p.nama
+                            }
+                        }
+                    }
+                }
+                Text("Sudah dipilih: ${if (pupukPilih.isEmpty()) "belum ada" else pupukPilih.joinToString(", ")}",
+                    fontSize = 12.sp, color = TeksAbu)
+
+                LabelInput("5. Musim")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    ChipPilih("a. Kemarau ☀️", musim == "Kemarau") { musim = "Kemarau" }
+                    ChipPilih("b. Hujan 🌧️", musim == "Hujan") { musim = "Hujan" }
+                }
+
+                LabelInput("Tambahan: Luas Petak")
+                Field("Luas petak (m²) — untuk total kebutuhan satu petak", luasText, { luasText = it }, angka = true, hint = "contoh: 100")
+
                 if (pesan.isNotBlank()) Text(pesan, color = Color(0xFFB3261E), fontSize = 13.sp)
                 Button(
                     onClick = {
                         val hst = hstText.toIntOrNull() ?: try {
                             (LocalDate.now().toEpochDay() - LocalDate.parse(tanggalText.trim()).toEpochDay()).toInt()
                         } catch (e: Exception) { -999 }
-                        if (hst == -999) { pesan = "Tanggal tanam tidak valid — pakai format 2026-11-01 atau isi Umur (HST)." }
-                        else if (hst < -10) { pesan = "Umur tanaman tidak masuk akal, cek lagi tanggalnya." }
-                        else { pesan = ""; hasil = Triple(tanaman, hst, "") }
+                        when {
+                            pupukPilih.isEmpty() -> pesan = "Pilih minimal satu jenis pupuk dulu (nomor 4)."
+                            jumlahText.toIntOrNull() == null && luasText.toDoubleOrNull() == null ->
+                                pesan = "Isi jumlah tanaman (nomor 1) atau luas petak dulu."
+                            hst == -999 -> pesan = "Tanggal tanam tidak valid — pakai format 2026-11-01 atau isi Umur (HST)."
+                            hst < -10 -> pesan = "Usia tanaman tidak masuk akal, cek lagi tanggalnya."
+                            else -> { pesan = ""; hasil = tanaman to hst }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Biru),
@@ -215,11 +277,12 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
         }
         val h = hasil
         if (h != null) {
-            val (t, hst, _) = h
+            val (t, hst) = h
             val luas = luasText.toDoubleOrNull()
             val jumlah = jumlahText.toIntOrNull()
             val fase = t.fasePada(hst)
             val berikut = t.aplikasiBerikutnya(hst)
+            val volumeKocorMl = if (musim == "Kemarau") 250 else 150
             item {
                 Card(
                     shape = RoundedCornerShape(20.dp),
@@ -227,37 +290,93 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
                 ) {
                     Column(Modifier.padding(16.dp)) {
-                        Text("${t.ikon} ${t.nama} • Umur $hst HST", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+                        Text("${t.ikon} ${t.nama} • Usia $hst HST", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
                         Text("Fase: ${fase?.nama ?: if (hst > t.panenMax) "Sudah lewat masa tanam" else "Persiapan / sebelum tanam"}",
                             color = Color.White, fontSize = 14.sp)
                         if (fase != null) Text(fase.perawatan, color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
-                        Text("Progres ke panen: ${(t.progres(hst) * 100).toInt()}%  •  Panen ${t.panenMin}–${t.panenMax} HST",
+                        Text("Cara: $cara  •  Musim: $musim  •  Progres ke panen ${(t.progres(hst) * 100).toInt()}%",
                             color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
                     }
                 }
             }
-            if (berikut != null) {
-                item {
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE7F6EC)),
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
-                    ) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text("💊 Dosis Berikutnya: ${berikut.label} (umur ${berikut.hst} HST" +
-                                (if (berikut.hst > hst) ", ${berikut.hst - hst} hari lagi" else ", SEKARANG") + ")",
-                                fontWeight = FontWeight.ExtraBold, color = Color(0xFF14532D), fontSize = 16.sp)
-                            berikut.pupuk.forEach { p ->
-                                Text("• ${p.nama}: ${formatDosis(p.kgPerHa, luas, jumlah, t.populasiPerHa)}",
-                                    fontSize = 15.sp, color = TeksGelap)
+            item {
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFE7F6EC)),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text(
+                            if (berikut != null) "💊 Dosis Aplikasi: ${berikut.label} (usia ${berikut.hst} HST" +
+                                (if (berikut.hst > hst) ", ${berikut.hst - hst} hari lagi" else ", SEKARANG") + ")"
+                            else "💊 Dosis Aplikasi (jadwal tanaman ini sudah selesai — pakai dosis umum)",
+                            fontWeight = FontWeight.ExtraBold, color = Color(0xFF14532D), fontSize = 16.sp
+                        )
+                        Spacer(Modifier.height(6.dp))
+                        pupukPilih.forEach { namaPupuk ->
+                            val dariJadwal = berikut?.pupuk?.firstOrNull { it.nama.equals(namaPupuk, true) }
+                            val pilihan = PupukDB.byNama(namaPupuk)
+                            val kgHa = dariJadwal?.kgPerHa ?: pilihan?.dosisUmumKgPerHa ?: 0.0
+                            val sumber = if (dariJadwal != null) "dari jadwal ${t.nama}" else "dosis umum"
+                            val tidakLarut = cara == "Kocor" && pilihan?.bisaKocor == false
+                            Text("• $namaPupuk ($sumber): ${formatDosis(kgHa, luas, jumlah, t.populasiPerHa)}",
+                                fontSize = 15.sp, color = TeksGelap, fontWeight = FontWeight.SemiBold)
+                            if (cara == "Kocor" && !tidakLarut && t.populasiPerHa > 0) {
+                                val gramPerTanaman = kgHa * 1000.0 / t.populasiPerHa
+                                val gramPerLiter = gramPerTanaman / (volumeKocorMl / 1000.0)
+                                val totalLiter = if (jumlah != null) " • total larutan ±${"%.1f".format(volumeKocorMl * jumlah / 1000.0)} liter untuk $jumlah tanaman" else ""
+                                Text("   Larutkan ${"%.1f".format(gramPerTanaman)} gram/tanaman dalam $volumeKocorMl ml air (±${"%.0f".format(gramPerLiter)} gram/liter)$totalLiter",
+                                    fontSize = 13.sp, color = TeksGelap)
                             }
-                            if (berikut.catatan.isNotBlank()) Text(berikut.catatan, fontSize = 12.sp, color = TeksAbu)
+                            if (tidakLarut) {
+                                Text("   ⚠️ $namaPupuk tidak larut air — jangan dikocor, berikan dengan cara TABUR/tugal.",
+                                    fontSize = 13.sp, color = Color(0xFFB3261E))
+                            }
+                            if (pilihan != null && pilihan.catatan.isNotBlank()) {
+                                Text("   ${pilihan.catatan}", fontSize = 12.sp, color = TeksAbu)
+                            }
                         }
                     }
                 }
             }
             item {
-                Text("Semua Jadwal (sudah diskalakan ke petakmu)", fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("🧭 Cara Aplikasi — $cara, Musim $musim", fontWeight = FontWeight.ExtraBold, color = BiruKartu, fontSize = 15.sp)
+                        Spacer(Modifier.height(6.dp))
+                        val panduan = when {
+                            cara == "Tabur" && musim == "Kemarau" -> listOf(
+                                "Taburkan merata / tugal 5–10 cm di samping tanaman, jangan kena batang & daun.",
+                                "Tutup pupuk dengan tanah tipis, lalu SIRAM — musim kemarau pupuk mudah menguap (terutama Urea) bila dibiarkan kering.",
+                                "Waktu terbaik: pagi sebelum jam 9 atau sore setelah jam 15."
+                            )
+                            cara == "Tabur" && musim == "Hujan" -> listOf(
+                                "JANGAN memupuk saat hujan deras atau lahan tergenang — pupuk mudah tercuci (leaching).",
+                                "Taburkan saat tanah lembap tapi tidak becek, tutup tanah tipis agar tidak hanyut.",
+                                "Untuk pupuk mudah larut (Urea, ZA, KCl, NPK): bagi dosis jadi 2 tahap selang ±7 hari agar tidak banyak yang hilang tercuci."
+                            )
+                            cara == "Kocor" && musim == "Kemarau" -> listOf(
+                                "Larutkan dosis per tanaman dalam $volumeKocorMl ml air (volume lebih banyak karena kemarau), aduk sampai larut.",
+                                "Siramkan ke pangkal tanaman / daerah akar, jangan ke daun. Lakukan pagi atau sore hari.",
+                                "Setelah kocor, tanah dijaga tetap lembap — jangan biarkan kekeringan."
+                            )
+                            else -> listOf(
+                                "Larutkan dosis per tanaman dalam $volumeKocorMl ml air saja (musim hujan — jangan menambah genangan).",
+                                "Kocor ke pangkal tanaman saat TIDAK hujan dan tanah tidak tergenang.",
+                                "Tunda kocor bila hujan deras turun — larutan akan langsung tercuci."
+                            )
+                        }
+                        panduan.forEach { Text("• $it", fontSize = 13.sp, color = TeksGelap) }
+                    }
+                }
+            }
+            item {
+                Text("Semua Jadwal ${t.nama} (sudah diskalakan ke petakmu)", fontSize = 16.sp, fontWeight = FontWeight.Bold,
                     color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp))
             }
             items(t.jadwal) { app ->
@@ -277,7 +396,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                 }
             }
             item {
-                Text("Catatan: dosis ini acuan umum praktik sekolah. Hasil terbaik tetap menyesuaikan uji tanah, varietas & kondisi lahan setempat.",
+                Text("Catatan: dosis jadwal mengikuti rekomendasi tanaman; pupuk di luar jadwal memakai dosis umum per aplikasi. Hasil terbaik tetap menyesuaikan uji tanah, varietas & kondisi lahan setempat.",
                     fontSize = 12.sp, color = TeksAbu, modifier = Modifier.padding(18.dp))
             }
         }
