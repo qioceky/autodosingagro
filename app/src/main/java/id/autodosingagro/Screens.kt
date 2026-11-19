@@ -1,0 +1,465 @@
+package id.autodosingagro
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import id.autodosingagro.data.*
+import java.time.LocalDate
+
+@Composable
+fun JudulHalaman(judul: String, sub: String) {
+    Column(Modifier.fillMaxWidth().padding(18.dp)) {
+        Text(judul, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap)
+        Text(sub, fontSize = 13.sp, color = TeksAbu)
+    }
+}
+
+@Composable
+fun PilihanTanaman(terpilih: String, onPilih: (String) -> Unit) {
+    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(horizontal = 18.dp)) {
+        items(TanamanDB.semua) { t ->
+            val aktif = t.id == terpilih
+            Box(
+                Modifier.clip(RoundedCornerShape(50))
+                    .background(if (aktif) Biru else BiruMuda)
+                    .clickable { onPilih(t.id) }
+                    .padding(horizontal = 14.dp, vertical = 8.dp)
+            ) { Text("${t.ikon} ${t.nama}", color = if (aktif) Color.White else TeksGelap,
+                fontWeight = FontWeight.SemiBold, fontSize = 14.sp) }
+        }
+    }
+}
+
+@Composable
+fun Field(label: String, value: String, onChange: (String) -> Unit, angka: Boolean = false, hint: String = "") {
+    OutlinedTextField(
+        value = value, onValueChange = onChange, label = { Text(label) },
+        placeholder = if (hint.isNotBlank()) ({ Text(hint) }) else null,
+        keyboardOptions = KeyboardOptions(keyboardType = if (angka) KeyboardType.Decimal else KeyboardType.Text),
+        singleLine = true, modifier = Modifier.fillMaxWidth()
+    )
+}
+
+/* ---------------- DAFTAR & DETAIL JENIS TANAMAN ---------------- */
+
+@Composable
+fun TanamanScreen(onDetail: (String) -> Unit) {
+    LazyColumn(Modifier.fillMaxSize()) {
+        item { JudulHalaman("Jenis Tanaman 🌱", "Tanaman pangan & hortikultura untuk praktik ATPH — ketuk untuk fase & jadwal pupuknya") }
+        items(TanamanDB.semua) { t ->
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(3.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+                    .clickable { onDetail(t.id) }
+            ) {
+                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(BiruSangatMuda),
+                        contentAlignment = Alignment.Center) { Text(t.ikon, fontSize = 28.sp) }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(t.nama, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+                        Text(t.latin, fontSize = 12.sp, fontStyle = FontStyle.Italic, color = TeksAbu)
+                        Text("${t.kategori} • Panen ${t.panenMin}–${t.panenMax} HST • ${t.jadwal.size}× pemupukan",
+                            fontSize = 12.sp, color = Biru)
+                    }
+                    Text("›", fontSize = 26.sp, color = TeksAbu)
+                }
+            }
+        }
+        item { Spacer(Modifier.height(18.dp)) }
+    }
+}
+
+@Composable
+fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Unit) {
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("‹", fontSize = 34.sp, color = Biru, modifier = Modifier.clickable { onBack() }.padding(end = 10.dp))
+                Column {
+                    Text("${tanaman.ikon} ${tanaman.nama}", fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap)
+                    Text("${tanaman.latin} • ${tanaman.kategori}", fontSize = 13.sp, fontStyle = FontStyle.Italic, color = TeksAbu)
+                }
+            }
+        }
+        item {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = BiruKartu),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp)
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(tanaman.deskripsi, color = Color.White, fontSize = 14.sp)
+                    Spacer(Modifier.height(10.dp))
+                    Text("Jarak tanam: ${tanaman.jarakTanam}  •  Populasi ±${"%,d".format(tanaman.populasiPerHa).replace(',', '.')} tanaman/ha",
+                        color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+                    Text("Umur panen: ${tanaman.panenMin}–${tanaman.panenMax} HST", color = Color.White.copy(alpha = 0.85f), fontSize = 12.sp)
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Text("Fase Pertumbuhan (Umur Tanaman)", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
+                color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp))
+            Spacer(Modifier.height(8.dp))
+        }
+        items(tanaman.fase) { f ->
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(2.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
+            ) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("${f.nama}  •  ${f.hstMulai}–${f.hstSelesai} HST", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 15.sp)
+                    Text(f.ciri, fontSize = 13.sp, color = TeksGelap)
+                    Text("Perawatan: ${f.perawatan}", fontSize = 13.sp, color = TeksAbu)
+                }
+            }
+        }
+        item {
+            Spacer(Modifier.height(16.dp))
+            Text("Jadwal & Dosis Pemupukan", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold,
+                color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp))
+            Spacer(Modifier.height(8.dp))
+        }
+        items(tanaman.jadwal) { app ->
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = BiruSangatMuda),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
+            ) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("${app.label} — umur ${app.hst} HST", fontWeight = FontWeight.Bold, color = BiruKartu, fontSize = 15.sp)
+                    app.pupuk.forEach { p -> Text("• ${p.nama}: ${"%.0f".format(p.kgPerHa)} kg/ha", fontSize = 14.sp, color = TeksGelap) }
+                    if (app.catatan.isNotBlank()) Text(app.catatan, fontSize = 12.sp, color = TeksAbu)
+                }
+            }
+        }
+        item {
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(2.dp),
+                modifier = Modifier.fillMaxWidth().padding(18.dp)
+            ) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("Total Satu Musim Tanam", fontWeight = FontWeight.Bold, color = TeksGelap)
+                    tanaman.totalPupuk().forEach { p -> Text("• ${p.nama}: ${"%.0f".format(p.kgPerHa)} kg/ha", fontSize = 14.sp) }
+                    Spacer(Modifier.height(10.dp))
+                    Button(onClick = onHitung, modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Biru)) {
+                        Text("Hitung Dosis untuk Petak Saya ⚖️")
+                    }
+                }
+            }
+        }
+    }
+}
+
+/* ---------------- KALKULATOR DOSIS ---------------- */
+
+@Composable
+fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
+    var tanamanId by remember { mutableStateOf(TanamanDB.semua.first().id) }
+    var hstText by remember { mutableStateOf("") }
+    var tanggalText by remember { mutableStateOf(LocalDate.now().minusDays(25).toString()) }
+    var luasText by remember { mutableStateOf("100") }
+    var jumlahText by remember { mutableStateOf("") }
+    var hasil by remember { mutableStateOf<Triple<Tanaman, Int, String>?>(null) }
+    var pesan by remember { mutableStateOf("") }
+    val tanaman = TanamanDB.byId(tanamanId)!!
+
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            JudulHalaman("Kalkulator Dosis ⚖️", "Pilih jenis tanaman, isi umur tanaman — dosis pupuk dihitung sesuai fase & luas petakmu")
+            PilihanTanaman(tanamanId) { tanamanId = it; hasil = null }
+            Spacer(Modifier.height(14.dp))
+            Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Field("Umur tanaman (HST) — isi ini ATAU tanggal tanam di bawah", hstText, { hstText = it }, angka = true, hint = "contoh: 25")
+                Field("Tanggal tanam (TTTT-BB-HH)", tanggalText, { tanggalText = it }, hint = "2026-11-01")
+                Field("Luas petak (m²)", luasText, { luasText = it }, angka = true, hint = "contoh: 100")
+                Field("Jumlah tanaman (opsional, untuk gram/tanaman)", jumlahText, { jumlahText = it }, angka = true, hint = "contoh: 320")
+                if (pesan.isNotBlank()) Text(pesan, color = Color(0xFFB3261E), fontSize = 13.sp)
+                Button(
+                    onClick = {
+                        val hst = hstText.toIntOrNull() ?: try {
+                            (LocalDate.now().toEpochDay() - LocalDate.parse(tanggalText.trim()).toEpochDay()).toInt()
+                        } catch (e: Exception) { -999 }
+                        if (hst == -999) { pesan = "Tanggal tanam tidak valid — pakai format 2026-11-01 atau isi Umur (HST)." }
+                        else if (hst < -10) { pesan = "Umur tanaman tidak masuk akal, cek lagi tanggalnya." }
+                        else { pesan = ""; hasil = Triple(tanaman, hst, "") }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                    shape = RoundedCornerShape(16.dp)
+                ) { Text("Hitung Dosis Pupuk", fontSize = 16.sp, fontWeight = FontWeight.Bold) }
+            }
+            Spacer(Modifier.height(8.dp))
+        }
+        val h = hasil
+        if (h != null) {
+            val (t, hst, _) = h
+            val luas = luasText.toDoubleOrNull()
+            val jumlah = jumlahText.toIntOrNull()
+            val fase = t.fasePada(hst)
+            val berikut = t.aplikasiBerikutnya(hst)
+            item {
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = BiruKartu),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+                ) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("${t.ikon} ${t.nama} • Umur $hst HST", color = Color.White, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+                        Text("Fase: ${fase?.nama ?: if (hst > t.panenMax) "Sudah lewat masa tanam" else "Persiapan / sebelum tanam"}",
+                            color = Color.White, fontSize = 14.sp)
+                        if (fase != null) Text(fase.perawatan, color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+                        Text("Progres ke panen: ${(t.progres(hst) * 100).toInt()}%  •  Panen ${t.panenMin}–${t.panenMax} HST",
+                            color = Color.White.copy(alpha = 0.85f), fontSize = 13.sp)
+                    }
+                }
+            }
+            if (berikut != null) {
+                item {
+                    Card(
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE7F6EC)),
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text("💊 Dosis Berikutnya: ${berikut.label} (umur ${berikut.hst} HST" +
+                                (if (berikut.hst > hst) ", ${berikut.hst - hst} hari lagi" else ", SEKARANG") + ")",
+                                fontWeight = FontWeight.ExtraBold, color = Color(0xFF14532D), fontSize = 16.sp)
+                            berikut.pupuk.forEach { p ->
+                                Text("• ${p.nama}: ${formatDosis(p.kgPerHa, luas, jumlah, t.populasiPerHa)}",
+                                    fontSize = 15.sp, color = TeksGelap)
+                            }
+                            if (berikut.catatan.isNotBlank()) Text(berikut.catatan, fontSize = 12.sp, color = TeksAbu)
+                        }
+                    }
+                }
+            }
+            item {
+                Text("Semua Jadwal (sudah diskalakan ke petakmu)", fontSize = 16.sp, fontWeight = FontWeight.Bold,
+                    color = TeksGelap, modifier = Modifier.padding(horizontal = 18.dp, vertical = 6.dp))
+            }
+            items(t.jadwal) { app ->
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
+                ) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("${app.label} — ${app.hst} HST ${if (app.hst <= hst) "✓ sudah waktunya / lewat" else ""}",
+                            fontWeight = FontWeight.SemiBold, color = BiruKartu, fontSize = 14.sp)
+                        app.pupuk.forEach { p ->
+                            Text("• ${p.nama}: ${formatDosis(p.kgPerHa, luas, jumlah, t.populasiPerHa)}", fontSize = 13.sp)
+                        }
+                    }
+                }
+            }
+            item {
+                Text("Catatan: dosis ini acuan umum praktik sekolah. Hasil terbaik tetap menyesuaikan uji tanah, varietas & kondisi lahan setempat.",
+                    fontSize = 12.sp, color = TeksAbu, modifier = Modifier.padding(18.dp))
+            }
+        }
+    }
+}
+
+/* ---------------- PANTAU PERTUMBUHAN ---------------- */
+
+@Composable
+fun PantauScreen(
+    tanamanSaya: List<TanamanSaya>, logs: List<LogTumbuh>,
+    onTambah: (TanamanSaya) -> Unit, onHapus: (Long) -> Unit,
+    onTambahLog: (LogTumbuh) -> Unit, onHapusLog: (Long) -> Unit
+) {
+    var label by remember { mutableStateOf("") }
+    var tanamanId by remember { mutableStateOf(TanamanDB.semua.first().id) }
+    var tanggal by remember { mutableStateOf(LocalDate.now().toString()) }
+    var luas by remember { mutableStateOf("") }
+    var jumlah by remember { mutableStateOf("") }
+    var pesan by remember { mutableStateOf("") }
+    var logUntuk by remember { mutableStateOf<Long?>(null) }
+    var tinggi by remember { mutableStateOf("") }
+    var daun by remember { mutableStateOf("") }
+    var kondisi by remember { mutableStateOf("Sehat") }
+    var catatan by remember { mutableStateOf("") }
+
+    LazyColumn(Modifier.fillMaxSize()) {
+        item { JudulHalaman("Pantau Pertumbuhan 📈", "Tanaman yang kamu tanam, umurnya (HST), fasenya & jadwal pupuk berikutnya") }
+        if (tanamanSaya.isEmpty()) {
+            item { Text("Belum ada tanaman. Tambahkan lewat formulir di bawah 👇", color = TeksAbu,
+                modifier = Modifier.padding(horizontal = 18.dp)) }
+        }
+        items(tanamanSaya) { ts ->
+            val t = TanamanDB.byId(ts.tanamanId) ?: TanamanDB.semua.first()
+            val hst = ts.hst()
+            val fase = t.fasePada(hst)
+            val berikut = t.aplikasiBerikutnya(hst)
+            val logSaya = logs.filter { it.tanamanSayaId == ts.id }.sortedByDescending { it.tanggal }
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(3.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 6.dp)
+            ) {
+                Column(Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("${t.ikon} ${ts.label}", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap,
+                            modifier = Modifier.weight(1f))
+                        Text("🗑️", fontSize = 18.sp, modifier = Modifier.clickable { onHapus(ts.id) })
+                    }
+                    Text("${t.nama} • Tanam ${ts.tanggalTanam.format(fmtTanggal)} • Umur $hst HST",
+                        fontSize = 13.sp, color = TeksAbu)
+                    Text("Fase: ${fase?.nama ?: "Menjelang / lewat panen"} • Progres ${(t.progres(hst) * 100).toInt()}%",
+                        fontSize = 13.sp, color = Biru, fontWeight = FontWeight.SemiBold)
+                    LinearProgressIndicator(progress = { t.progres(hst) }, color = Hijau,
+                        trackColor = BiruMuda, modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            .height(8.dp).clip(RoundedCornerShape(50)))
+                    if (berikut != null) {
+                        Text("💊 Pupuk berikutnya: ${berikut.label} di ${berikut.hst} HST" +
+                            (if (berikut.hst > hst) " (${berikut.hst - hst} hari lagi)" else " — SEKARANG") +
+                            ": ${berikut.pupuk.joinToString { p -> "${p.nama} ${formatDosis(p.kgPerHa, ts.luasM2.takeIf { it > 0 }, ts.jumlahTanaman.takeIf { it > 0 }, t.populasiPerHa)}" }}",
+                            fontSize = 13.sp, color = Color(0xFF14532D))
+                    } else {
+                        Text("✅ Semua jadwal pupuk sudah lewat — fokus perawatan & panen.", fontSize = 13.sp, color = Color(0xFF14532D))
+                    }
+                    if (logSaya.isNotEmpty()) {
+                        val terakhir = logSaya.first()
+                        Text("📏 Terakhir dicatat ${terakhir.tanggal.format(fmtTanggal)}: tinggi ${terakhir.tinggiCm} cm, ${terakhir.jumlahDaun} daun, kondisi ${terakhir.kondisi}",
+                            fontSize = 13.sp, color = TeksGelap)
+                    }
+                    Row(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = { logUntuk = if (logUntuk == ts.id) null else ts.id },
+                            colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                            shape = RoundedCornerShape(50)) { Text("Catat Tumbuh") }
+                        OutlinedButton(onClick = { logUntuk = if (logUntuk == ts.id) null else ts.id },
+                            shape = RoundedCornerShape(50)) { Text("Lihat Log (${logSaya.size})") }
+                    }
+                    if (logUntuk == ts.id) {
+                        Spacer(Modifier.height(10.dp))
+                        Field("Tinggi tanaman (cm)", tinggi, { tinggi = it }, angka = true)
+                        Spacer(Modifier.height(8.dp))
+                        Field("Jumlah daun", daun, { daun = it }, angka = true)
+                        Spacer(Modifier.height(8.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            items(listOf("Sehat", "Daun Menguning", "Layu", "Terserang Hama", "Lainnya")) { k ->
+                                Box(Modifier.clip(RoundedCornerShape(50))
+                                    .background(if (kondisi == k) Biru else BiruMuda)
+                                    .clickable { kondisi = k }.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                                    Text(k, fontSize = 12.sp, color = if (kondisi == k) Color.White else TeksGelap)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Field("Catatan (opsional)", catatan, { catatan = it })
+                        Spacer(Modifier.height(8.dp))
+                        Button(onClick = {
+                            val tg = tinggi.toDoubleOrNull()
+                            if (tg == null) { pesan = "Isi tinggi tanaman dulu (angka cm)." }
+                            else {
+                                onTambahLog(LogTumbuh(System.currentTimeMillis(), ts.id, LocalDate.now(),
+                                    tg, daun.toIntOrNull() ?: 0, kondisi, catatan))
+                                tinggi = ""; daun = ""; catatan = ""; pesan = ""
+                            }
+                        }, modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Hijau)) { Text("Simpan Catatan Pertumbuhan") }
+                        logSaya.forEach { l ->
+                            Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("${l.tanggal.format(fmtTanggal)} • ${l.tinggiCm} cm • ${l.jumlahDaun} daun • ${l.kondisi}",
+                                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                                    if (l.catatan.isNotBlank()) Text(l.catatan, fontSize = 12.sp, color = TeksAbu)
+                                }
+                                Text("🗑️", modifier = Modifier.clickable { onHapusLog(l.id) })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item {
+            Spacer(Modifier.height(14.dp))
+            Text("➕ Tanam Baru", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = TeksGelap,
+                modifier = Modifier.padding(horizontal = 18.dp))
+            Spacer(Modifier.height(8.dp))
+            PilihanTanaman(tanamanId) { tanamanId = it }
+            Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Field("Nama petak / label", label, { label = it }, hint = "contoh: Cabai Petak 1")
+                Field("Tanggal tanam (TTTT-BB-HH)", tanggal, { tanggal = it }, hint = "2026-11-10")
+                Field("Luas petak (m²)", luas, { luas = it }, angka = true)
+                Field("Jumlah tanaman", jumlah, { jumlah = it }, angka = true)
+                if (pesan.isNotBlank()) Text(pesan, color = Color(0xFFB3261E), fontSize = 13.sp)
+                Button(onClick = {
+                    val tgl = try { LocalDate.parse(tanggal.trim()) } catch (e: Exception) { null }
+                    if (label.isBlank()) pesan = "Isi nama petak dulu."
+                    else if (tgl == null) pesan = "Tanggal tidak valid — format 2026-11-10."
+                    else {
+                        onTambah(TanamanSaya(System.currentTimeMillis(), label.trim(), tanamanId, tgl,
+                            luas.toDoubleOrNull() ?: 0.0, jumlah.toIntOrNull() ?: 0))
+                        label = ""; luas = ""; jumlah = ""; pesan = ""
+                    }
+                }, modifier = Modifier.fillMaxWidth().height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                    shape = RoundedCornerShape(16.dp)) { Text("Simpan Tanaman Saya", fontWeight = FontWeight.Bold) }
+                Spacer(Modifier.height(10.dp))
+            }
+        }
+    }
+}
+
+/* ---------------- INFO ---------------- */
+
+@Composable
+fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit) {
+    var namaEdit by remember(nama) { mutableStateOf(nama) }
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            JudulHalaman("Auto Dosing Agro Technology 🌾", "Aplikasi pemantau pertumbuhan tanaman & dosis pemupukan sesuai umur tanaman — untuk SMK jurusan ATPH (Agribisnis Tanaman Pangan dan Hortikultura)")
+            Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Field("Nama kamu (tampil di Beranda)", namaEdit, { namaEdit = it }, hint = "contoh: Rizki")
+                Button(onClick = { onSimpanNama(namaEdit.trim()) },
+                    colors = ButtonDefaults.buttonColors(containerColor = Biru)) { Text("Simpan Nama") }
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp)) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Cara Pakai", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                        Text("1️⃣ Buka menu Jenis Tanaman untuk mempelajari fase & jadwal pupuk tiap tanaman.\n" +
+                            "2️⃣ Tambahkan tanamanmu di menu Pantau (nama petak + tanggal tanam) — umur (HST), fase & progresnya dihitung otomatis.\n" +
+                            "3️⃣ Ketuk tombol D di tengah untuk Kalkulator Dosis: dosis dihitung per luas petak (kg/gram) dan per tanaman (gram/tanaman).\n" +
+                            "4️⃣ Catat tinggi & jumlah daun secara berkala lewat Catat Tumbuh untuk memantau pertumbuhan.", fontSize = 14.sp)
+                    }
+                }
+                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = BiruSangatMuda)) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Tentang Dosis", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                        Text("Dosis di aplikasi ini adalah acuan umum praktik ATPH per hektar (kg/ha) dari rekomendasi budidaya yang lazim dipakai. " +
+                            "Kebutuhan nyata bisa berbeda menurut kesuburan tanah, varietas, musim & hasil uji tanah — konsultasikan dengan guru / penyuluh setempat. " +
+                            "HST = Hari Setelah Tanam. Pupuk dasar hortikultura sebagian diberikan sebelum tanam (HST negatif = hari sebelum tanam).", fontSize = 14.sp)
+                    }
+                }
+                Text("Versi 1.0.0 • Data tersimpan lokal di HP, tanpa internet & tanpa akun.", fontSize = 12.sp, color = TeksAbu)
+                Spacer(Modifier.height(12.dp))
+            }
+        }
+    }
+}
