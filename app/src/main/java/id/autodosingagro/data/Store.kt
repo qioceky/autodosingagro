@@ -158,7 +158,8 @@ class Store(context: Context) {
                 Tanaman(
                     id = o.getString("id"), nama = o.getString("nama"),
                     latin = o.optString("latin", ""), kategori = o.optString("kategori", "Tanaman Kustom"),
-                    ikon = o.optInt("ikon", R.drawable.ic_kedelai),
+                    ikon = o.optInt("ikon", R.drawable.ic_kedelai), foto = o.optInt("foto", 0),
+                    fotoPath = o.optString("fotoPath", ""),
                     panenMin = o.optInt("panenMin", 60), panenMax = o.optInt("panenMax", 90),
                     jarakTanam = o.optString("jarak", "-"), populasiPerHa = o.optInt("populasi", 20000),
                     deskripsi = o.optString("deskripsi", ""), fase = fase, jadwal = jadwal
@@ -172,7 +173,7 @@ class Store(context: Context) {
         list.forEach { t ->
             arr.put(JSONObject().apply {
                 put("id", t.id); put("nama", t.nama); put("latin", t.latin); put("kategori", t.kategori)
-                put("ikon", t.ikon); put("panenMin", t.panenMin); put("panenMax", t.panenMax)
+                put("ikon", t.ikon); put("foto", t.foto); put("fotoPath", t.fotoPath); put("panenMin", t.panenMin); put("panenMax", t.panenMax)
                 put("jarak", t.jarakTanam); put("populasi", t.populasiPerHa); put("deskripsi", t.deskripsi)
                 val fa = JSONArray(); t.fase.forEach { f -> fa.put(JSONObject().apply {
                     put("nama", f.nama); put("mulai", f.hstMulai); put("selesai", f.hstSelesai)

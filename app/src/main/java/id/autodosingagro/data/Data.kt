@@ -31,7 +31,8 @@ data class Tanaman(
     val latin: String,
     val kategori: String,       // "Tanaman Pangan" / "Hortikultura"
     val ikon: Int,
-    val foto: Int = 0,           // emoji sbg ikon visual kartu
+    val foto: Int = 0,
+    val fotoPath: String = "",           // emoji sbg ikon visual kartu
     val panenMin: Int,          // HST awal panen
     val panenMax: Int,          // HST akhir masa tanam
     val jarakTanam: String,

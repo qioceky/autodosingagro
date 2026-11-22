@@ -1,6 +1,17 @@
 package id.autodosingagro
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import java.io.File
+import java.io.FileOutputStream
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -294,6 +305,21 @@ fun GrafikTinggi(logs: List<LogTumbuh>) {
     }
 }
 
+fun simpanFotoDariUri(context: Context, uri: Uri): String? {
+    return try {
+        val input = context.contentResolver.openInputStream(uri) ?: return null
+        val bmp = BitmapFactory.decodeStream(input); input.close()
+        if (bmp == null) return null
+        val s = minOf(bmp.width, bmp.height)
+        val crop = Bitmap.createBitmap(bmp, (bmp.width - s) / 2, (bmp.height - s) / 2, s, s)
+        val scaled = Bitmap.createScaledBitmap(crop, 512, 512, true)
+        val dir = File(context.filesDir, "foto_kustom").apply { mkdirs() }
+        val out = File(dir, "foto_" + System.currentTimeMillis() + ".jpg")
+        FileOutputStream(out).use { scaled.compress(Bitmap.CompressFormat.JPEG, 82, it) }
+        out.absolutePath
+    } catch (e: Exception) { null }
+}
+
 /* ---------------- TAMBAH TANAMAN KUSTOM ---------------- */
 
 @Composable
@@ -307,7 +333,13 @@ fun TambahTanamanScreen(onSimpan: (Tanaman) -> Unit, onBack: () -> Unit) {
     var populasi by remember { mutableStateOf("") }
     var deskripsi by remember { mutableStateOf("") }
     var ikon by remember { mutableStateOf(R.drawable.ic_kedelai) }
+    var fotoRes by remember { mutableStateOf(0) }
+    var fotoUri by remember { mutableStateOf<Uri?>(null) }
     var pesan by remember { mutableStateOf("") }
+    val context = LocalContext.current
+    val pemilihFoto = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) fotoUri = uri
+    }
 
     val pilihanIkon = listOf(
         R.drawable.ic_padi, R.drawable.ic_jagung, R.drawable.ic_kedelai,
@@ -326,13 +358,62 @@ fun TambahTanamanScreen(onSimpan: (Tanaman) -> Unit, onBack: () -> Unit) {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(pilihanKategori) { k -> ChipPilih(k, kategori == k) { kategori = k } }
                 }
-                LabelInput("Ikon tanaman")
+                LabelInput("Foto / Ikon tanaman")
+                Text("Pakai foto bawaan, foto tanamanmu sendiri dari galeri, atau ikon garis.",
+                    fontSize = 12.sp, color = TeksAbu)
+                val pilihanFoto = listOf(
+                    R.drawable.foto_padi, R.drawable.foto_jagung, R.drawable.foto_kedelai,
+                    R.drawable.foto_cabai_merah, R.drawable.foto_cabai_rawit, R.drawable.foto_tomat,
+                    R.drawable.foto_bawang_merah, R.drawable.foto_mentimun
+                )
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(pilihanFoto) { res ->
+                        Box(
+                            Modifier.size(52.dp).clip(RoundedCornerShape(12.dp))
+                                .background(if (fotoRes == res && fotoUri == null) Biru else Color.White)
+                                .clickable { fotoRes = res; fotoUri = null },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(painter = androidx.compose.ui.res.painterResource(res),
+                                contentDescription = "foto bawaan",
+                                modifier = Modifier.size(46.dp).clip(RoundedCornerShape(10.dp)),
+                                contentScale = ContentScale.Crop)
+                        }
+                    }
+                }
+                OutlinedButton(onClick = { pemilihFoto.launch("image/*") },
+                    shape = RoundedCornerShape(10.dp)) {
+                    FaIcon(Fa.IMAGE, size = 14.sp, color = Biru)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Pilih Foto dari Galeri", fontSize = 13.sp)
+                }
+                val uriTerpilih = fotoUri
+                if (uriTerpilih != null) {
+                    val bmpPreview = remember(uriTerpilih) {
+                        try {
+                            context.contentResolver.openInputStream(uriTerpilih)?.use { BitmapFactory.decodeStream(it) }
+                        } catch (e: Exception) { null }
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (bmpPreview != null) {
+                            Image(bitmap = bmpPreview.asImageBitmap(), contentDescription = "foto pilihan",
+                                modifier = Modifier.size(56.dp).clip(RoundedCornerShape(10.dp)),
+                                contentScale = ContentScale.Crop)
+                            Spacer(Modifier.width(10.dp))
+                        }
+                        Text("Foto dari galerimu akan dipakai untuk tanaman ini.",
+                            fontSize = 12.sp, color = TeksGelap, modifier = Modifier.weight(1f))
+                        FaIcon(Fa.TRASH, size = 15.sp, color = TeksAbu,
+                            modifier = Modifier.clickable { fotoUri = null })
+                    }
+                }
+                LabelInput("atau ikon garis")
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(pilihanIkon) { res ->
                         Box(
                             Modifier.size(48.dp).clip(RoundedCornerShape(12.dp))
-                                .background(if (ikon == res) BiruSangatMuda else Color.White)
-                                .clickable { ikon = res },
+                                .background(if (ikon == res && fotoRes == 0 && fotoUri == null) BiruSangatMuda else Color.White)
+                                .clickable { ikon = res; fotoRes = 0; fotoUri = null },
                             contentAlignment = Alignment.Center
                         ) { IkonTanamanRes(res, "ikon", size = 28.dp, color = Biru) }
                     }
@@ -359,6 +440,8 @@ fun TambahTanamanScreen(onSimpan: (Tanaman) -> Unit, onBack: () -> Unit) {
                                 latin = latin.trim().ifBlank { "—" },
                                 kategori = kategori,
                                 ikon = ikon,
+                                foto = if (fotoUri == null) fotoRes else 0,
+                                fotoPath = fotoUri?.let { simpanFotoDariUri(context, it) } ?: "", 
                                 panenMin = pMin, panenMax = pMax,
                                 jarakTanam = jarak.trim().ifBlank { "-" },
                                 populasiPerHa = populasi.toIntOrNull() ?: 20000,

@@ -33,6 +33,14 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.6.0
+
+- **Foto tanaman kustom bisa diatur sendiri** — di form Tambah Tanaman Baru,
+  bagian Foto/Ikon sekarang punya 3 pilihan: (1) foto bawaan (8 foto tanaman),
+  (2) **foto dari galeri HP sendiri** (dipangkas persegi 512px & disimpan di
+  penyimpanan internal aplikasi), (3) ikon garis seperti sebelumnya.
+  Foto galeri ikut terhapus otomatis bila tanaman kustomnya dihapus.
+
 ## v1.5.0
 
 - **Ikon tanaman diganti FOTO tanaman asli** — foto jauh lebih gampang dikenali

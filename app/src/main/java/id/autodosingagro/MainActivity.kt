@@ -113,6 +113,9 @@ fun App() {
                         onBack = { detailId = null },
                         onHitung = { detailId = null; tab = Tab.DOSIS },
                         onHapusKustom = { id ->
+                            TanamanDB.kustom.firstOrNull { it.id == id }?.let { t ->
+                                if (t.fotoPath.isNotBlank()) try { java.io.File(t.fotoPath).delete() } catch (e: Exception) { }
+                            }
                             val l = TanamanDB.kustom.filterNot { it.id == id }
                             TanamanDB.kustom = l; store.saveKustom(l); detailId = null
                         }

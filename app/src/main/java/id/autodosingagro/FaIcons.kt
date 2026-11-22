@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -74,6 +75,7 @@ object Fa {
     const val WALLET = "\uF555"
     const val TREND = "\uE098"
     const val TEMP = "\uF2C9"
+    const val IMAGE = "\uF03E"
 }
 
 private object FaTypeface {
@@ -110,6 +112,21 @@ fun FaIcon(
 /** Ikon tanaman dari drawable vektor (set IconOven, lisensi MIT) — digambar sesuai tanamannya. */
 @Composable
 fun TanamanIcon(tanaman: Tanaman, modifier: Modifier = Modifier, size: Dp = 20.dp, color: Color) {
+    if (tanaman.fotoPath.isNotBlank()) {
+        val bmp = androidx.compose.runtime.remember(tanaman.fotoPath) {
+            try { android.graphics.BitmapFactory.decodeFile(tanaman.fotoPath) } catch (e: Exception) { null }
+        }
+        if (bmp != null) {
+            androidx.compose.foundation.Image(
+                bitmap = bmp.asImageBitmap(),
+                contentDescription = tanaman.nama,
+                modifier = modifier.size(size)
+                    .clip(androidx.compose.foundation.shape.RoundedCornerShape(percent = 22)),
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+            )
+            return
+        }
+    }
     if (tanaman.foto != 0) {
         androidx.compose.foundation.Image(
             painter = painterResource(tanaman.foto),
