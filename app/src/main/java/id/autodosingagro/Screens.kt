@@ -71,9 +71,19 @@ fun Field(label: String, value: String, onChange: (String) -> Unit, angka: Boole
 /* ---------------- DAFTAR & DETAIL JENIS TANAMAN ---------------- */
 
 @Composable
-fun TanamanScreen(onDetail: (String) -> Unit) {
+fun TanamanScreen(onDetail: (String) -> Unit, onTambahBaru: () -> Unit = {}) {
     LazyColumn(Modifier.fillMaxSize()) {
-        item { JudulHalaman("Jenis Tanaman", "Tanaman pangan & hortikultura untuk praktik ATPH — ketuk untuk fase & jadwal pupuknya") }
+        item {
+            JudulHalaman("Jenis Tanaman", "Tanaman pangan & hortikultura untuk praktik ATPH — ketuk untuk fase & jadwal pupuknya")
+            Button(onClick = onTambahBaru, modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                shape = RoundedCornerShape(12.dp)) {
+                FaIcon(Fa.PLUS, size = 14.sp, color = Color.White)
+                Spacer(Modifier.width(8.dp))
+                Text("Tambah Tanaman Baru")
+            }
+            Spacer(Modifier.height(8.dp))
+        }
         items(TanamanDB.semua) { t ->
             Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)
                 .clickable { onDetail(t.id) }) {
@@ -96,7 +106,7 @@ fun TanamanScreen(onDetail: (String) -> Unit) {
 }
 
 @Composable
-fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Unit) {
+fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Unit, onHapusKustom: ((String) -> Unit)? = null) {
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -162,6 +172,17 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
                         FaIcon(Fa.SCALE, size = 15.sp, color = Color.White)
                         Spacer(Modifier.width(8.dp))
                         Text("Hitung Dosis untuk Petak Saya")
+                    }
+                    if (tanaman.id.startsWith("kustom-") && onHapusKustom != null) {
+                        Spacer(Modifier.height(10.dp))
+                        OutlinedButton(onClick = { onHapusKustom(tanaman.id) },
+                            modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp)) {
+                            FaIcon(Fa.TRASH, size = 14.sp, color = Color(0xFFB3261E))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Hapus Tanaman Kustom Ini", color = Color(0xFFB3261E))
+                        }
+                        Text("Tanaman kustom buatanmu sendiri — fase & jadwalnya memakai pola umum.",
+                            fontSize = 11.sp, color = TeksAbu)
                     }
                 }
             }

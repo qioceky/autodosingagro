@@ -77,6 +77,7 @@ fun Kartu(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> 
 fun App() {
     val context = LocalContext.current
     val store = remember { Store(context) }
+    remember { TanamanDB.kustom = store.loadKustom(); true }
     var tab by remember { mutableStateOf(Tab.BERANDA) }
     var detailId by remember { mutableStateOf<String?>(null) }
     var tanamanSaya by remember { mutableStateOf(store.loadTanamanSaya()) }
@@ -92,6 +93,13 @@ fun App() {
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f)) {
                 when {
+                    layar == "tambah-tanaman" -> TambahTanamanScreen(
+                        onSimpan = { t ->
+                            val l = TanamanDB.kustom + t; TanamanDB.kustom = l; store.saveKustom(l)
+                            layar = null; tab = Tab.TANAMAN; detailId = t.id
+                        },
+                        onBack = { layar = null }
+                    )
                     layar == "diagnosa" -> DiagnosaScreen(onBack = { layar = null })
                     layar == "kalender" -> KalenderScreen(onBack = { layar = null })
                     layar == "usaha" -> UsahaScreen(
@@ -103,7 +111,11 @@ fun App() {
                     detailId != null -> DetailTanamanScreen(
                         tanaman = TanamanDB.byId(detailId!!)!!,
                         onBack = { detailId = null },
-                        onHitung = { detailId = null; tab = Tab.DOSIS }
+                        onHitung = { detailId = null; tab = Tab.DOSIS },
+                        onHapusKustom = { id ->
+                            val l = TanamanDB.kustom.filterNot { it.id == id }
+                            TanamanDB.kustom = l; store.saveKustom(l); detailId = null
+                        }
                     )
                     tab == Tab.BERANDA -> BerandaScreen(
                         nama = nama, tanamanSaya = tanamanSaya, logs = logs,
@@ -112,7 +124,7 @@ fun App() {
                         onDetail = { detailId = it },
                         onPantau = { tab = Tab.PANTAU }
                     )
-                    tab == Tab.TANAMAN -> TanamanScreen(onDetail = { detailId = it })
+                    tab == Tab.TANAMAN -> TanamanScreen(onDetail = { detailId = it }, onTambahBaru = { layar = "tambah-tanaman" })
                     tab == Tab.DOSIS -> DosisScreen(tanamanSaya = tanamanSaya)
                     tab == Tab.PANTAU -> PantauScreen(
                         tanamanSaya = tanamanSaya, logs = logs,

@@ -1,6 +1,7 @@
 package id.autodosingagro.data
 
 import android.content.Context
+import id.autodosingagro.R
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.LocalDate
@@ -130,6 +131,62 @@ class Store(context: Context) {
             })
         }
         prefs.edit().putString("transaksi", arr.toString()).apply()
+    }
+
+    fun loadKustom(): List<Tanaman> {
+        val raw = prefs.getString("tanaman_kustom", null) ?: return emptyList()
+        return try {
+            val arr = JSONArray(raw)
+            (0 until arr.length()).map { i ->
+                val o = arr.getJSONObject(i)
+                val faseArr = o.getJSONArray("fase")
+                val fase = (0 until faseArr.length()).map { j ->
+                    val f = faseArr.getJSONObject(j)
+                    Fase(f.getString("nama"), f.getInt("mulai"), f.getInt("selesai"),
+                        f.optString("ciri", ""), f.optString("perawatan", ""))
+                }
+                val jadArr = o.getJSONArray("jadwal")
+                val jadwal = (0 until jadArr.length()).map { j ->
+                    val a = jadArr.getJSONObject(j)
+                    val pArr = a.getJSONArray("pupuk")
+                    val pupuk = (0 until pArr.length()).map { k ->
+                        val pp = pArr.getJSONObject(k)
+                        Pupuk(pp.getString("nama"), pp.getDouble("kg"))
+                    }
+                    AplikasiPupuk(a.getString("label"), a.getInt("hst"), pupuk, a.optString("catatan", ""))
+                }
+                Tanaman(
+                    id = o.getString("id"), nama = o.getString("nama"),
+                    latin = o.optString("latin", ""), kategori = o.optString("kategori", "Tanaman Kustom"),
+                    ikon = o.optInt("ikon", R.drawable.ic_kedelai),
+                    panenMin = o.optInt("panenMin", 60), panenMax = o.optInt("panenMax", 90),
+                    jarakTanam = o.optString("jarak", "-"), populasiPerHa = o.optInt("populasi", 20000),
+                    deskripsi = o.optString("deskripsi", ""), fase = fase, jadwal = jadwal
+                )
+            }
+        } catch (e: Exception) { emptyList() }
+    }
+
+    fun saveKustom(list: List<Tanaman>) {
+        val arr = JSONArray()
+        list.forEach { t ->
+            arr.put(JSONObject().apply {
+                put("id", t.id); put("nama", t.nama); put("latin", t.latin); put("kategori", t.kategori)
+                put("ikon", t.ikon); put("panenMin", t.panenMin); put("panenMax", t.panenMax)
+                put("jarak", t.jarakTanam); put("populasi", t.populasiPerHa); put("deskripsi", t.deskripsi)
+                val fa = JSONArray(); t.fase.forEach { f -> fa.put(JSONObject().apply {
+                    put("nama", f.nama); put("mulai", f.hstMulai); put("selesai", f.hstSelesai)
+                    put("ciri", f.ciri); put("perawatan", f.perawatan) }) }
+                put("fase", fa)
+                val ja = JSONArray(); t.jadwal.forEach { a -> ja.put(JSONObject().apply {
+                    put("label", a.label); put("hst", a.hst); put("catatan", a.catatan)
+                    val pa = JSONArray(); a.pupuk.forEach { pp -> pa.put(JSONObject().apply {
+                        put("nama", pp.nama); put("kg", pp.kgPerHa) }) }
+                    put("pupuk", pa) }) }
+                put("jadwal", ja)
+            })
+        }
+        prefs.edit().putString("tanaman_kustom", arr.toString()).apply()
     }
 
     fun namaPengguna(): String = prefs.getString("nama", "") ?: ""

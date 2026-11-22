@@ -109,9 +109,14 @@ fun FaIcon(
 /** Ikon tanaman dari drawable vektor (set IconOven, lisensi MIT) — digambar sesuai tanamannya. */
 @Composable
 fun TanamanIcon(tanaman: Tanaman, modifier: Modifier = Modifier, size: Dp = 20.dp, color: Color) {
+    IkonTanamanRes(tanaman.ikon, tanaman.nama, modifier, size, color)
+}
+
+@Composable
+fun IkonTanamanRes(ikonRes: Int, label: String, modifier: Modifier = Modifier, size: Dp = 20.dp, color: Color) {
     androidx.compose.material3.Icon(
-        painter = painterResource(tanaman.ikon),
-        contentDescription = tanaman.nama,
+        painter = painterResource(ikonRes),
+        contentDescription = label,
         modifier = modifier.size(size),
         tint = color
     )

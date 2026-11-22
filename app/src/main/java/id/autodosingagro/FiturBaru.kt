@@ -95,7 +95,7 @@ fun KalenderScreen(onBack: () -> Unit) {
         }
         items(TanamanDB.semua) { t ->
             val info = KalenderDB.data[t.id]
-            val cocok = info?.second?.contains(bulan) == true
+            val cocok = if (info == null) true else info.second.contains(bulan)
             Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)) {
                 Row(Modifier.padding(13.dp), verticalAlignment = Alignment.CenterVertically) {
                     TanamanIcon(t, size = 19.dp, color = if (cocok) Biru else TeksAbu)
@@ -103,7 +103,7 @@ fun KalenderScreen(onBack: () -> Unit) {
                     Column(Modifier.weight(1f)) {
                         Text(t.nama, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                             color = if (cocok) TeksGelap else TeksAbu)
-                        Text(info?.first ?: "", fontSize = 12.sp, color = TeksAbu)
+                        Text(info?.first ?: "Tanaman kustom — dianggap cocok sepanjang tahun", fontSize = 12.sp, color = TeksAbu)
                     }
                     Text(if (cocok) "Cocok tanam" else "Kurang cocok",
                         fontSize = 12.sp, fontWeight = FontWeight.Bold,
@@ -291,5 +291,109 @@ fun GrafikTinggi(logs: List<LogTumbuh>) {
         }
         Text("Tertinggi ${maxT} cm • terendah ${minT} cm • naik ${"%.1f".format(naik)} cm dalam $hari hari (±${"%.2f".format(naik / hari)} cm/hari)",
             fontSize = 11.sp, color = TeksAbu)
+    }
+}
+
+/* ---------------- TAMBAH TANAMAN KUSTOM ---------------- */
+
+@Composable
+fun TambahTanamanScreen(onSimpan: (Tanaman) -> Unit, onBack: () -> Unit) {
+    var nama by remember { mutableStateOf("") }
+    var latin by remember { mutableStateOf("") }
+    var kategori by remember { mutableStateOf("Sayuran") }
+    var panenMin by remember { mutableStateOf("") }
+    var panenMax by remember { mutableStateOf("") }
+    var jarak by remember { mutableStateOf("") }
+    var populasi by remember { mutableStateOf("") }
+    var deskripsi by remember { mutableStateOf("") }
+    var ikon by remember { mutableStateOf(R.drawable.ic_kedelai) }
+    var pesan by remember { mutableStateOf("") }
+
+    val pilihanIkon = listOf(
+        R.drawable.ic_padi, R.drawable.ic_jagung, R.drawable.ic_kedelai,
+        R.drawable.ic_cabai_merah, R.drawable.ic_cabai_rawit, R.drawable.ic_tomat,
+        R.drawable.ic_bawang_merah, R.drawable.ic_mentimun
+    )
+    val pilihanKategori = listOf("Tanaman Pangan", "Sayuran", "Buah", "Umbi", "Rempah", "Lainnya")
+
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            KepalaLayar("Tambah Tanaman Baru", "Tanaman buatanmu sendiri — muncul di Jenis Tanaman, Pantau, Kalkulator & Kalender", onBack)
+            Column(Modifier.padding(horizontal = 18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Field("Nama tanaman *", nama, { nama = it }, hint = "contoh: Bayam")
+                Field("Nama latin (opsional)", latin, { latin = it }, hint = "contoh: Amaranthus spp.")
+                LabelInput("Kategori")
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(pilihanKategori) { k -> ChipPilih(k, kategori == k) { kategori = k } }
+                }
+                LabelInput("Ikon tanaman")
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(pilihanIkon) { res ->
+                        Box(
+                            Modifier.size(48.dp).clip(RoundedCornerShape(12.dp))
+                                .background(if (ikon == res) BiruSangatMuda else Color.White)
+                                .clickable { ikon = res },
+                            contentAlignment = Alignment.Center
+                        ) { IkonTanamanRes(res, "ikon", size = 28.dp, color = Biru) }
+                    }
+                }
+                Field("Panen mulai (HST) *", panenMin, { panenMin = it }, angka = true, hint = "contoh: 25")
+                Field("Panen selesai (HST) *", panenMax, { panenMax = it }, angka = true, hint = "contoh: 35")
+                Field("Jarak tanam", jarak, { jarak = it }, hint = "contoh: 20 × 20 cm")
+                Field("Populasi per hektar (tanaman)", populasi, { populasi = it }, angka = true, hint = "kosongkan bila tidak tahu")
+                Field("Deskripsi singkat", deskripsi, { deskripsi = it }, hint = "catatan tentang tanaman ini")
+                Text("Fase pertumbuhan & jadwal pupuknya dibuat otomatis memakai pola umum (4 fase + pupuk dasar & 2 susulan) mengikuti umur panen yang kamu isi — dosisnya bisa kamu sesuaikan lagi lewat Kalkulator Dosis.",
+                    fontSize = 12.sp, color = TeksAbu)
+                if (pesan.isNotBlank()) Text(pesan, color = Color(0xFFB3261E), fontSize = 13.sp)
+                Button(onClick = {
+                    val pMin = panenMin.toIntOrNull(); val pMax = panenMax.toIntOrNull()
+                    when {
+                        nama.isBlank() -> pesan = "Nama tanaman wajib diisi."
+                        pMin == null || pMax == null || pMin <= 0 || pMax <= pMin ->
+                            pesan = "Umur panen tidak valid — panen selesai harus lebih besar dari panen mulai (HST)."
+                        else -> {
+                            val m = pMax
+                            val tanaman = Tanaman(
+                                id = "kustom-" + System.currentTimeMillis(),
+                                nama = nama.trim(),
+                                latin = latin.trim().ifBlank { "—" },
+                                kategori = kategori,
+                                ikon = ikon,
+                                panenMin = pMin, panenMax = pMax,
+                                jarakTanam = jarak.trim().ifBlank { "-" },
+                                populasiPerHa = populasi.toIntOrNull() ?: 20000,
+                                deskripsi = deskripsi.trim().ifBlank { "Tanaman kustom buatan pengguna." },
+                                fase = listOf(
+                                    Fase("Persemaian & Awal Tanam", 0, (m * 0.15).toInt().coerceAtLeast(1),
+                                        "Benih berkecambah / bibit baru pindah tanam, daun pertama muncul.",
+                                        "Jaga kelembapan media, lindungi dari hujan deras & hama awal."),
+                                    Fase("Pertumbuhan Vegetatif", (m * 0.15).toInt().coerceAtLeast(1), (m * 0.45).toInt(),
+                                        "Daun & batang tumbuh cepat, tanaman meninggi dan merimbun.",
+                                        "Pupuk susulan sumber N, penyiangan, penyiraman teratur."),
+                                    Fase("Generatif", (m * 0.45).toInt(), (m * 0.8).toInt(),
+                                        "Muncul bunga / bakal buah / umbi mulai terbentuk & membesar.",
+                                        "Tekankan pupuk K, jaga air stabil, pantau hama buah & penyakit."),
+                                    Fase("Pematangan & Panen", (m * 0.8).toInt(), m,
+                                        "Hasil mulai matang & siap dipanen bertahap atau serentak.",
+                                        "Kurangi pupuk N, panen tepat waktu agar kualitas terbaik.")
+                                ),
+                                jadwal = listOf(
+                                    AplikasiPupuk("Dasar", -3, listOf(Pupuk("Pupuk Kandang", 5000.0), Pupuk("NPK 15-15-15", 150.0)),
+                                        "Jadwal umum tanaman kustom — sesuaikan dengan rekomendasi setempat."),
+                                    AplikasiPupuk("Susulan 1", (m * 0.3).toInt().coerceAtLeast(1), listOf(Pupuk("NPK 15-15-15", 100.0)),
+                                        "Berikan di fase vegetatif."),
+                                    AplikasiPupuk("Susulan 2", (m * 0.55).toInt(), listOf(Pupuk("NPK 15-15-15", 75.0), Pupuk("KCl", 50.0)),
+                                        "Berikan saat masuk fase generatif.")
+                                )
+                            )
+                            onSimpan(tanaman)
+                        }
+                    }
+                }, modifier = Modifier.fillMaxWidth().height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                    shape = RoundedCornerShape(12.dp)) { Text("Simpan Tanaman Baru", fontWeight = FontWeight.Bold) }
+                Spacer(Modifier.height(16.dp))
+            }
+        }
     }
 }

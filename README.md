@@ -33,6 +33,16 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.4.0
+
+- **Tambah Tanaman Baru** — di menu Jenis Tanaman sekarang ada tombol tambah:
+  pengguna bisa membuat tanaman sendiri (nama, nama latin opsional, kategori,
+  pilih ikon dari 8 ikon tanaman, umur panen HST, jarak tanam, populasi/ha,
+  deskripsi). Fase pertumbuhan (4 fase) & jadwal pupuk umum (dasar + 2 susulan)
+  dibuat otomatis mengikuti umur panennya. Tanaman kustom tersimpan lokal dan
+  langsung bisa dipakai di Pantau, Kalkulator Dosis & Kalender Tanam; bisa
+  dihapus lagi dari halaman detailnya.
+
 ## v1.3.1
 
 - **Ikon tanaman diganti total** — ikon Font Awesome untuk tanaman memang tidak

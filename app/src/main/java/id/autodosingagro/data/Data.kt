@@ -1,5 +1,8 @@
 package id.autodosingagro.data
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import id.autodosingagro.R
 
 /** Satu jenis pupuk dalam satu kali aplikasi. Dosis dalam kg per hektar. */
@@ -57,7 +60,13 @@ data class Tanaman(
 }
 
 object TanamanDB {
-    val semua: List<Tanaman> = listOf(
+    /** Tanaman kustom buatan pengguna (diisi dari penyimpanan lokal saat aplikasi mulai). */
+    var kustom: List<Tanaman> by mutableStateOf(emptyList())
+
+    /** Semua tanaman: bawaan + kustom. */
+    val semua: List<Tanaman> get() = bawaan + kustom
+
+    private val bawaan: List<Tanaman> = listOf(
         Tanaman(
             id = "padi", nama = "Padi", latin = "Oryza sativa", kategori = "Tanaman Pangan",
             ikon = R.drawable.ic_padi, panenMin = 105, panenMax = 120, jarakTanam = "25 × 25 cm",
