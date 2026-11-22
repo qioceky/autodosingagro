@@ -70,25 +70,39 @@ object PengingatPupuk {
         buatChannel(context)
         val codes = mutableListOf<Int>()
         val hariIni = LocalDate.now()
+        val jamMenit = store.pengingatJam()
+        val jam = LocalTime.of(jamMenit / 60, jamMenit % 60)
+        val h1Aktif = store.pengingatH1()
+
+        fun pasang(tanggal: LocalDate, code: Int, judul: String, isi: String) {
+            var waktu = LocalDateTime.of(tanggal, jam)
+            if (waktu.isBefore(LocalDateTime.now())) {
+                if (tanggal != hariIni) return
+                waktu = LocalDateTime.now().plusMinutes(1) // hari ini tapi jamnya sudah lewat
+            }
+            val trigger = waktu.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+            try {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pendingIntent(context, code, judul, isi))
+                codes.add(code)
+            } catch (e: Exception) { /* abaikan bila alarm gagal dipasang */ }
+        }
+
         store.loadTanamanSaya().forEach { ts ->
             val t = TanamanDB.byId(ts.tanamanId) ?: return@forEach
             t.jadwal.forEach { app ->
                 val tanggal = ts.tanggalTanam.plusDays(app.hst.toLong())
                 if (tanggal.isBefore(hariIni)) return@forEach
-                var waktu = LocalDateTime.of(tanggal, LocalTime.of(7, 0))
-                if (waktu.isBefore(LocalDateTime.now())) {
-                    // hari ini tapi jam 07.00 sudah lewat — ingatkan sebentar lagi
-                    waktu = LocalDateTime.now().plusMinutes(1)
-                }
                 val code = (ts.id % 100000).toInt() * 100 + (app.hst + 500)
-                val judul = "Waktunya pupuk: ${ts.label}"
                 val isi = "${t.nama} — ${app.label} (umur ${app.hst} HST): " +
                     app.pupuk.joinToString { p -> "${p.nama} ${"%.0f".format(p.kgPerHa)} kg/ha" }
-                val trigger = waktu.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                try {
-                    am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pendingIntent(context, code, judul, isi))
-                    codes.add(code)
-                } catch (e: Exception) { /* abaikan bila alarm gagal dipasang */ }
+                pasang(tanggal, code, "Waktunya pupuk: ${ts.label}", isi)
+                if (h1Aktif) {
+                    val tglH1 = tanggal.minusDays(1)
+                    if (!tglH1.isBefore(hariIni)) {
+                        pasang(tglH1, code + 20_000_000, "Besok waktunya pupuk: ${ts.label}",
+                            "Siapkan dari sekarang. Besok: $isi")
+                    }
+                }
             }
         }
         store.simpanCodes(codes)

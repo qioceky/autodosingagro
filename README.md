@@ -33,6 +33,16 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.8.0
+
+- **Pengingat pupuk sekarang bisa diatur lengkap** (Pengaturan → Pengingat
+  Pupuk): **jam pengingat bisa dipilih** (05.00 / 05.30 / 06.00 / 06.30 /
+  07.00 / 08.00 / 16.00 / 17.00, default 07.00) dan ada saklar **Pengingat
+  H-1** — notifikasi tambahan sehari sebelumnya di jam yang sama ("Besok
+  waktunya pupuk… siapkan dari sekarang"). Alarm hari-H & H-1 dijadwalkan
+  ulang otomatis setiap setelan berubah. Kartu status di menu Jadwal Pupuk
+  menampilkan setelan yang sedang aktif.
+
 ## v1.7.0
 
 - **Menu Utama dipangkas jadi 6 fokus**: Jenis Tanaman, Dosis Pupuk, Jadwal

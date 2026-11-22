@@ -486,6 +486,10 @@ fun TambahTanamanScreen(onSimpan: (Tanaman) -> Unit, onBack: () -> Unit) {
 @Composable
 fun JadwalScreen(tanamanSaya: List<TanamanSaya>, pengingatAktif: Boolean, onBack: () -> Unit) {
     val hariIni = LocalDate.now()
+    val ctxJadwal = LocalContext.current
+    val storeJadwal = remember { Store(ctxJadwal) }
+    val jamTeks = "%02d.%02d".format(storeJadwal.pengingatJam() / 60, storeJadwal.pengingatJam() % 60)
+    val h1Teks = if (storeJadwal.pengingatH1()) " + pengingat H-1" else "" 
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             KepalaLayar("Jadwal Pupuk", "Semua jadwal pemupukan tanamanmu lengkap dengan tanggalnya", onBack)
@@ -499,8 +503,8 @@ fun JadwalScreen(tanamanSaya: List<TanamanSaya>, pengingatAktif: Boolean, onBack
                             fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TeksGelap
                         )
                         Text(
-                            if (pengingatAktif) "Kamu akan diingatkan jam 07.00 pagi di hari pemupukan. Atur di menu Pengaturan."
-                            else "Aktifkan saklar Pengingat Pupuk di menu Pengaturan agar diingatkan jam 07.00 di hari pemupukan.",
+                            if (pengingatAktif) "Kamu akan diingatkan jam $jamTeks di hari pemupukan$h1Teks. Atur di menu Pengaturan."
+                            else "Aktifkan saklar Pengingat Pupuk di menu Pengaturan agar diingatkan di hari pemupukan.",
                             fontSize = 12.sp, color = TeksAbu
                         )
                     }

@@ -584,7 +584,7 @@ fun PantauScreen(
 /* ---------------- PENGATURAN (profil, pembaruan, tentang) ---------------- */
 
 @Composable
-fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boolean = true, onPengingatChange: (Boolean) -> Unit = {}) {
+fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boolean = true, onPengingatChange: (Boolean) -> Unit = {}, pengingatJam: Int = 420, onPengingatJamChange: (Int) -> Unit = {}, pengingatH1: Boolean = false, onPengingatH1Change: (Boolean) -> Unit = {}) {
     val context = LocalContext.current
     var namaEdit by remember(nama) { mutableStateOf(nama) }
     var statusUpdate by remember { mutableStateOf("belum") } // belum | memeriksa | terbaru | ada | gagal
@@ -639,8 +639,45 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boo
                             )
                         }
                         Spacer(Modifier.height(4.dp))
-                        Text("Notifikasi jam 07.00 pagi di hari jadwal pemupukan tanamanmu (sesuai menu Jadwal Pupuk). Jadwal diperbarui otomatis setiap aplikasi dibuka & setelah HP menyala ulang.",
+                        Text("Notifikasi di hari jadwal pemupukan tanamanmu (sesuai menu Jadwal Pupuk), pada jam pilihanmu di bawah. Jadwal diperbarui otomatis setiap aplikasi dibuka & setelah HP menyala ulang.",
                             fontSize = 12.sp, color = TeksAbu)
+                        if (pengingatAktif) {
+                            Spacer(Modifier.height(8.dp))
+                            Text("Jam pengingat (hari H)", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TeksGelap)
+                            Spacer(Modifier.height(6.dp))
+                            val pilihanJam = listOf(300, 330, 360, 390, 420, 480, 960, 1020)
+                            pilihanJam.chunked(4).forEach { baris ->
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    baris.forEach { menit ->
+                                        val teksJam = "%02d.%02d".format(menit / 60, menit % 60)
+                                        Box(
+                                            Modifier.weight(1f).clip(RoundedCornerShape(10.dp))
+                                                .background(if (pengingatJam == menit) Biru else BiruSangatMuda)
+                                                .clickable { onPengingatJamChange(menit) }
+                                                .padding(vertical = 8.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(teksJam, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                                                color = if (pengingatJam == menit) Color.White else Biru)
+                                        }
+                                    }
+                                    repeat(4 - baris.size) { Spacer(Modifier.weight(1f)) }
+                                }
+                                Spacer(Modifier.height(8.dp))
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("Ingatkan juga H-1", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TeksGelap)
+                                    Text("Notifikasi sehari sebelumnya di jam yang sama, supaya pupuk bisa disiapkan.",
+                                        fontSize = 12.sp, color = TeksAbu)
+                                }
+                                Switch(
+                                    checked = pengingatH1,
+                                    onCheckedChange = { onPengingatH1Change(it) },
+                                    colors = SwitchDefaults.colors(checkedTrackColor = Biru)
+                                )
+                            }
+                        }
                         if (pengingatAktif && !izinNotif) {
                             Spacer(Modifier.height(6.dp))
                             Text("Izin notifikasi belum diberikan — pengingat tidak akan muncul sampai izin diberikan.",

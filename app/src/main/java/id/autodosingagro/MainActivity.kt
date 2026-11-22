@@ -84,7 +84,9 @@ fun App() {
     var logs by remember { mutableStateOf(store.loadLog()) }
     var transaksi by remember { mutableStateOf(store.loadTransaksi()) }
     var pengingatAktif by remember { mutableStateOf(store.pengingatAktif()) }
-    LaunchedEffect(tanamanSaya, pengingatAktif) { PengingatPupuk.jadwalkanUlang(context) }
+    var pengingatJam by remember { mutableStateOf(store.pengingatJam()) }
+    var pengingatH1 by remember { mutableStateOf(store.pengingatH1()) }
+    LaunchedEffect(tanamanSaya, pengingatAktif, pengingatJam, pengingatH1) { PengingatPupuk.jadwalkanUlang(context) }
     var layar by remember { mutableStateOf<String?>(null) }
     var nama by remember { mutableStateOf(store.namaPengguna()) }
 
@@ -142,7 +144,11 @@ fun App() {
                     tab == Tab.INFO -> InfoScreen(
                         nama = nama, onSimpanNama = { nama = it; store.simpanNama(it) },
                         pengingatAktif = pengingatAktif,
-                        onPengingatChange = { aktif -> pengingatAktif = aktif; store.setPengingatAktif(aktif) }
+                        onPengingatChange = { aktif -> pengingatAktif = aktif; store.setPengingatAktif(aktif) },
+                        pengingatJam = pengingatJam,
+                        onPengingatJamChange = { pengingatJam = it; store.setPengingatJam(it) },
+                        pengingatH1 = pengingatH1,
+                        onPengingatH1Change = { pengingatH1 = it; store.setPengingatH1(it) }
                     )
                 }
             }
