@@ -77,6 +77,13 @@ object Fa {
     const val TEMP = "\uF2C9"
     const val IMAGE = "\uF03E"
     const val CLOCK = "\uF017"
+    const val CLOUD = "\uF0C2"
+    const val CLOUD_SUN = "\uF6C4"
+    const val BOLT = "\uF0E7"
+    const val SNOW = "\uF2DC"
+    const val SMOG = "\uF75F"
+    const val WIND = "\uF72E"
+    const val PIN = "\uF3C5"
 }
 
 private object FaTypeface {

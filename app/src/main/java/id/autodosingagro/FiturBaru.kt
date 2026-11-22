@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -565,5 +566,145 @@ fun JadwalScreen(tanamanSaya: List<TanamanSaya>, pengingatAktif: Boolean, onBack
             }
         }
         item { Spacer(Modifier.height(16.dp)) }
+    }
+}
+
+/* ---------------- KARTU CUACA (BERANDA) ---------------- */
+
+private fun cuacaDariCache(json: String?): CuacaInfo? {
+    if (json == null) return null
+    return try {
+        val j = org.json.JSONObject(json)
+        CuacaInfo(j.getDouble("suhu"), j.getInt("kode"), j.getInt("lembap"), j.getDouble("angin"),
+            j.getInt("hujan"), j.getDouble("max"), j.getDouble("min"))
+    } catch (e: Exception) { null }
+}
+
+private fun cuacaKeCache(info: CuacaInfo): String =
+    org.json.JSONObject().apply {
+        put("suhu", info.suhu); put("kode", info.kode); put("lembap", info.kelembapan)
+        put("angin", info.angin); put("hujan", info.peluangHujan); put("max", info.suhuMax); put("min", info.suhuMin)
+    }.toString()
+
+@Composable
+fun KartuCuaca() {
+    val context = LocalContext.current
+    val store = remember { Store(context) }
+    var kota by remember { mutableStateOf(store.cuacaLokasi()) }
+    var info by remember { mutableStateOf(cuacaDariCache(store.cuacaCache())) }
+    var memuat by remember { mutableStateOf(false) }
+    var dialogKota by remember { mutableStateOf(false) }
+
+    fun segarkan() {
+        memuat = true
+        CuacaApi.ambil(kota.lat, kota.lon) { hasil ->
+            memuat = false
+            if (hasil != null) { info = hasil; store.simpanCuacaCache(cuacaKeCache(hasil)) }
+        }
+    }
+    LaunchedEffect(kota) { segarkan() }
+
+    val c = info
+    Kartu(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                FaIcon(Fa.PIN, size = 13.sp, color = Biru)
+                Spacer(Modifier.width(6.dp))
+                Text(kota.nama, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = TeksGelap,
+                    modifier = Modifier.weight(1f))
+                Text("Ganti", fontSize = 12.sp, color = Biru, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.clickable { dialogKota = true }.padding(4.dp))
+                FaIcon(Fa.UPDATE, size = 13.sp, color = Biru,
+                    modifier = Modifier.clickable { segarkan() }.padding(4.dp))
+            }
+            if (c == null) {
+                Spacer(Modifier.height(8.dp))
+                Text(if (memuat) "Memuat cuaca…" else "Cuaca belum bisa dimuat — periksa internet lalu ketuk ikon segarkan.",
+                    fontSize = 12.sp, color = TeksAbu)
+            } else {
+                val (label, kategori) = labelCuaca(c.kode)
+                val glyph = when (kategori) {
+                    "cerah" -> Fa.SUN
+                    "cerahberawan" -> Fa.CLOUD_SUN
+                    "hujan" -> Fa.RAIN
+                    "petir" -> Fa.BOLT
+                    "salju" -> Fa.SNOW
+                    "kabut" -> Fa.SMOG
+                    else -> Fa.CLOUD
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(Modifier.size(58.dp).clip(CircleShape).background(HijauMuda),
+                        contentAlignment = Alignment.Center) {
+                        FaIcon(glyph, size = 26.sp, color = Hijau)
+                    }
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("${"%.0f".format(c.suhu)}°C", fontSize = 30.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+                        Text("$label • ${"%.0f".format(c.suhuMin)}°–${"%.0f".format(c.suhuMax)}°C hari ini",
+                            fontSize = 12.sp, color = TeksAbu)
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        FaIcon(Fa.DROPLET, size = 12.sp, color = Biru); Spacer(Modifier.width(5.dp))
+                        Text("Lembap ${c.kelembapan}%", fontSize = 12.sp, color = TeksGelap)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        FaIcon(Fa.WIND, size = 12.sp, color = Biru); Spacer(Modifier.width(5.dp))
+                        Text("Angin ${"%.0f".format(c.angin)} km/j", fontSize = 12.sp, color = TeksGelap)
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        FaIcon(Fa.RAIN, size = 12.sp, color = Biru); Spacer(Modifier.width(5.dp))
+                        Text("Hujan ${c.peluangHujan}%", fontSize = 12.sp, color = TeksGelap)
+                    }
+                }
+                Spacer(Modifier.height(10.dp))
+                Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(HijauMuda).padding(10.dp)) {
+                    Row(verticalAlignment = Alignment.Top) {
+                        FaIcon(Fa.SEEDLING, size = 13.sp, color = HijauTua)
+                        Spacer(Modifier.width(8.dp))
+                        Text(saranCuaca(c), fontSize = 12.sp, color = HijauTua)
+                    }
+                }
+                Text("Cuaca: Open-Meteo • diperbarui tiap aplikasi dibuka", fontSize = 10.sp, color = TeksAbu,
+                    modifier = Modifier.padding(top = 8.dp))
+            }
+        }
+    }
+
+    if (dialogKota) {
+        var kata by remember { mutableStateOf("") }
+        var hasil by remember { mutableStateOf<List<KotaCuaca>>(emptyList()) }
+        var dicari by remember { mutableStateOf(false) }
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { dialogKota = false },
+            title = { Text("Pilih Kota / Daerah", fontWeight = FontWeight.Bold) },
+            text = {
+                Column {
+                    OutlinedTextField(value = kata, onValueChange = { kata = it },
+                        label = { Text("Nama kota / kabupaten") }, singleLine = true,
+                        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(10.dp))
+                    Spacer(Modifier.height(8.dp))
+                    Button(onClick = {
+                        if (kata.isNotBlank()) { dicari = true; CuacaApi.cariKota(kata.trim()) { r -> hasil = r; dicari = false } }
+                    }, shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Biru)) {
+                        Text("Cari", fontSize = 13.sp)
+                    }
+                    if (dicari) Text("Mencari…", fontSize = 12.sp, color = TeksAbu, modifier = Modifier.padding(top = 8.dp))
+                    hasil.forEach { k ->
+                        Text(k.nama, fontSize = 13.sp, color = TeksGelap,
+                            modifier = Modifier.fillMaxWidth().clickable {
+                                kota = k; store.simpanCuacaLokasi(k); dialogKota = false
+                            }.padding(vertical = 10.dp))
+                    }
+                }
+            },
+            confirmButton = {
+                OutlinedButton(onClick = { dialogKota = false }, shape = RoundedCornerShape(10.dp)) { Text("Tutup") }
+            }
+        )
     }
 }

@@ -37,6 +37,8 @@ val BiruTerang = Color(0xFF3E97DD)
 val BiruMuda = Color(0xFFD9EAFB)
 val BiruSangatMuda = Color(0xFFEFF6FE)
 val Hijau = Color(0xFF22B14C)
+val HijauMuda = Color(0xFFE7F6EC)
+val HijauTua = Color(0xFF1B5E20)
 val Latar = Color(0xFFFAFBFC)
 val TeksGelap = Color(0xFF12263A)
 val TeksAbu = Color(0xFF5B7186)
@@ -273,83 +275,61 @@ fun BerandaScreen(
         }
         item {
             Box(Modifier.padding(horizontal = 18.dp).offset(y = (-42).dp)) {
-                Kartu(Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            LingkaranProgres(progres, 84, 11f)
-                            Spacer(Modifier.width(14.dp))
-                            Column(Modifier.weight(1f)) {
-                                Text("Progres Pertumbuhan Kamu", color = TeksGelap, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
-                                Spacer(Modifier.height(3.dp))
-                                Text("$faseSelesai dari $faseTotal Fase ${tanamanUtama?.nama ?: ""} Selesai",
-                                    color = TeksGelap, fontSize = 14.sp)
-                                Spacer(Modifier.height(9.dp))
-                                LinearProgressIndicator(
-                                    progress = { progres }, color = Hijau, trackColor = Garis,
-                                    modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(50))
-                                )
-                                Spacer(Modifier.height(7.dp))
-                                Text(
-                                    if (utama != null && tanamanUtama != null)
-                                        "${utama.label} • Umur $hstUtama HST • ${tanamanUtama.fasePada(hstUtama)?.nama ?: "Menjelang Panen"}"
-                                    else "Contoh: Padi • Umur 25 HST • Fase Vegetatif / Anakan — tambah tanamanmu di menu Pantau",
-                                    color = TeksAbu, fontSize = 12.sp
-                                )
-                            }
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            Button(
-                                onClick = onPantau,
-                                colors = ButtonDefaults.buttonColors(containerColor = Biru),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Text("Lanjut Pantau", fontWeight = FontWeight.SemiBold)
-                                Spacer(Modifier.width(8.dp))
-                                FaIcon(Fa.ARROW_R, size = 14.sp, color = Color.White)
-                            }
-                        }
-                    }
-                }
+                KartuCuaca()
             }
         }
         item {
-            // Perhatian Hari Ini — alert otomatis dari data monitoring
-            val peringatan = mutableListOf<String>()
+            // Kegiatan Hari Ini — kotak notifikasi: kegiatan yang harus dilakukan
+            data class Kegiatan(val ikon: String, val teks: String)
+            val kegiatan = mutableListOf<Kegiatan>()
+            val hariIniL = LocalDate.now()
             tanamanSaya.forEach { ts ->
                 val t = TanamanDB.byId(ts.tanamanId) ?: return@forEach
                 val hst = ts.hst()
-                val berikut = t.aplikasiBerikutnya(hst)
-                if (berikut != null && berikut.hst - hst in 0..3) {
-                    peringatan.add("${ts.label}: pupuk ${berikut.label} " +
-                        (if (berikut.hst == hst) "HARI INI" else "${berikut.hst - hst} hari lagi") +
-                        " (${berikut.pupuk.joinToString { p -> p.nama }})")
+                t.jadwal.forEach { app ->
+                    val tanggal = ts.tanggalTanam.plusDays(app.hst.toLong())
+                    val selisih = tanggal.toEpochDay() - hariIniL.toEpochDay()
+                    if (selisih == 0L) kegiatan.add(Kegiatan(Fa.FLASK,
+                        "Pupuk ${ts.label} HARI INI — ${app.label}: ${app.pupuk.joinToString { p -> "${p.nama} ${"%.0f".format(p.kgPerHa)} kg/ha" }}"))
+                    else if (selisih == 1L) kegiatan.add(Kegiatan(Fa.CLOCK,
+                        "Besok pupuk ${ts.label} (${app.label}) — siapkan pupuknya dari sekarang"))
                 }
                 val kePanen = t.panenMin - hst
-                if (kePanen in 0..7) peringatan.add("${ts.label}: panen ±$kePanen hari lagi (${t.nama})")
-                if (hst > t.panenMax) peringatan.add("${ts.label}: sudah lewat masa panen ${t.nama} ($hst HST)")
+                if (kePanen == 0) kegiatan.add(Kegiatan(Fa.WHEAT, "Panen ${ts.label} (${t.nama}) HARI INI — selamat panen!"))
+                else if (kePanen in 1..3) kegiatan.add(Kegiatan(Fa.WHEAT, "Siap-siap panen ${ts.label} (${t.nama}) — $kePanen hari lagi"))
+                if (hst > t.panenMax) kegiatan.add(Kegiatan(Fa.WARN, "${ts.label}: sudah lewat masa panen ${t.nama} ($hst HST) — segera panen / evaluasi"))
                 val logTerakhir = logs.filter { it.tanamanSayaId == ts.id }.maxByOrNull { it.tanggal }
                 val acuan = logTerakhir?.tanggal ?: ts.tanggalTanam
-                val selisih = LocalDate.now().toEpochDay() - acuan.toEpochDay()
-                if (selisih >= 7) peringatan.add("${ts.label}: belum dicatat pertumbuhannya $selisih hari — catat tinggi & daunnya")
+                val selisihLog = hariIniL.toEpochDay() - acuan.toEpochDay()
+                if (selisihLog >= 7) kegiatan.add(Kegiatan(Fa.NOTE, "Catat pertumbuhan ${ts.label} — sudah $selisihLog hari belum dicatat (tinggi & jumlah daun)"))
             }
             Column(Modifier.padding(horizontal = 18.dp).offset(y = (-30).dp)) {
                 Kartu(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            FaIcon(if (peringatan.isEmpty()) Fa.CHECK else Fa.WARN, size = 15.sp,
-                                color = if (peringatan.isEmpty()) Hijau else Oranye)
+                            FaIcon(Fa.BELL, size = 15.sp, color = Biru)
                             Spacer(Modifier.width(8.dp))
-                            Text("Perhatian Hari Ini", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                            Text("Kegiatan Hari Ini", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
                         }
-                        Spacer(Modifier.height(6.dp))
-                        if (peringatan.isEmpty()) {
+                        Spacer(Modifier.height(8.dp))
+                        if (kegiatan.isEmpty()) {
                             Text(
-                                if (tanamanSaya.isEmpty()) "Belum ada tanaman dipantau — tambah tanamanmu di menu Pantau, peringatan pupuk & panen tampil di sini."
-                                else "Semua terpantau — tidak ada pupuk jatuh tempo, panen dekat, atau catatan yang tertunda hari ini.",
+                                if (tanamanSaya.isEmpty()) "Belum ada tanaman dipantau — tambah tanamanmu di menu Pantau, kegiatan pupuk & panenmu tampil di sini."
+                                else "Tidak ada kegiatan wajib hari ini — tanamanmu aman. Cek lagi besok, atau lihat jadwal lengkap di menu Jadwal Pupuk.",
                                 fontSize = 12.sp, color = TeksAbu)
                         } else {
-                            peringatan.forEach { Text("• $it", fontSize = 12.sp, color = TeksGelap) }
+                            kegiatan.take(6).forEach { k ->
+                                Row(Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.Top) {
+                                    Box(Modifier.size(26.dp).clip(CircleShape).background(HijauMuda),
+                                        contentAlignment = Alignment.Center) {
+                                        FaIcon(k.ikon, size = 12.sp, color = HijauTua)
+                                    }
+                                    Spacer(Modifier.width(9.dp))
+                                    Text(k.teks, fontSize = 12.sp, color = TeksGelap)
+                                }
+                            }
+                            if (kegiatan.size > 6) Text("+${kegiatan.size - 6} kegiatan lain — lihat menu Jadwal Pupuk",
+                                fontSize = 12.sp, color = Biru, modifier = Modifier.padding(top = 4.dp))
                         }
                     }
                 }
@@ -370,15 +350,23 @@ fun BerandaScreen(
                 menu.chunked(3).forEach { rowItems ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowItems.forEach { (ikon, label, aksi) ->
-                            Kartu(Modifier.weight(1f).clickable { aksi() }) {
-                                Column(
-                                    Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 4.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    FaIcon(ikon, size = 22.sp, color = Biru)
+                            Box(
+                                Modifier.weight(1f).height(108.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(HijauMuda)
+                                    .border(1.dp, Hijau.copy(alpha = 0.35f), RoundedCornerShape(16.dp))
+                                    .clickable { aksi() }
+                                    .padding(vertical = 10.dp, horizontal = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Box(
+                                        Modifier.size(44.dp).clip(CircleShape).background(Color.White),
+                                        contentAlignment = Alignment.Center
+                                    ) { FaIcon(ikon, size = 20.sp, color = Hijau) }
                                     Spacer(Modifier.height(7.dp))
                                     Text(label, fontSize = 11.sp, textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Medium, color = TeksGelap)
+                                        fontWeight = FontWeight.Bold, color = HijauTua, lineHeight = 14.sp)
                                 }
                             }
                         }

@@ -190,6 +190,19 @@ class Store(context: Context) {
         prefs.edit().putString("tanaman_kustom", arr.toString()).apply()
     }
 
+    fun cuacaLokasi(): KotaCuaca {
+        val mentah = prefs.getString("cuaca_lokasi", null)
+        if (mentah != null) {
+            val b = mentah.split("|")
+            if (b.size == 3) return KotaCuaca(b[0], b[1].toDoubleOrNull() ?: -6.2, b[2].toDoubleOrNull() ?: 106.816666)
+        }
+        return KotaCuaca("Jakarta", -6.2, 106.816666)
+    }
+    fun simpanCuacaLokasi(k: KotaCuaca) =
+        prefs.edit().putString("cuaca_lokasi", "${k.nama}|${k.lat}|${k.lon}").apply()
+    fun cuacaCache(): String? = prefs.getString("cuaca_cache", null)
+    fun simpanCuacaCache(json: String) = prefs.edit().putString("cuaca_cache", json).apply()
+
     fun pengingatAktif(): Boolean = prefs.getBoolean("pengingat_aktif", true)
     fun pengingatJam(): Int = prefs.getInt("pengingat_jam", 420) // menit sejak 00.00, default 07.00
     fun setPengingatJam(menit: Int) = prefs.edit().putInt("pengingat_jam", menit).apply()

@@ -33,6 +33,22 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.11.0
+
+- **Kotak Menu Utama seragam + tema tanaman**: semua kotak sekarang tinggi
+  sama (108dp), latar hijau muda, garis tepi hijau, ikon di lingkaran putih
+  hijau, label hijau tua tebal.
+- **Kartu Progres Pertumbuhan di Beranda diganti Informasi Cuaca**
+  (Open-Meteo, gratis tanpa API key): suhu & kondisi sekarang, rentang suhu
+  hari ini, kelembapan, angin, peluang hujan — plus **saran kegiatan tani**
+  sesuai cuaca (mis. peluang hujan besar → tunda pemupukan). Kota bisa diganti
+  (pencarian kota/kabupaten), ada tombol segarkan, dan data terakhir
+  tersimpan sebagai cache saat offline. Default: Jakarta.
+- **Kartu Perhatian diganti Kegiatan Hari Ini** (kotak notifikasi di Beranda):
+  daftar kegiatan yang harus dilakukan — pupuk HARI INI (dengan dosisnya),
+  pupuk besok (siapkan), panen hari ini / ≤3 hari, lewat masa panen, dan
+  catatan pertumbuhan yang tertunda ≥7 hari, masing-masing dengan ikonnya.
+
 ## v1.10.0
 
 - **Tombol Tes Notifikasi** di Pengaturan → Pengingat Pupuk: mengirim
