@@ -33,6 +33,19 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.5.0
+
+- **Ikon tanaman diganti FOTO tanaman asli** — foto jauh lebih gampang dikenali
+  (dan lebih edukatif) daripada ikon garis. 8 foto tanaman bawaan dari
+  Wikimedia Commons / Flickr berlisensi bebas (CC BY / CC BY-SA), dipotong
+  persegi 512px (total ±517 KB, tetap ringan & offline). Ikon vektor IconOven
+  tetap dipakai untuk tanaman kustom & cadangan.
+- Kredit foto: Padi — kontributor Wikimedia Commons (CC BY-SA 4.0);
+  Jagung — theilr (CC BY-SA); Kedelai — United Soybean Board (CC BY);
+  Cabai Merah — Johnnybam (CC BY-SA 4.0); Cabai Rawit — Prathvi Acharya
+  (CC BY-SA 4.0); Tomat — Steffen Bauer / saatpilot.de (CC BY 4.0);
+  Bawang Merah — Evan-Amos (CC BY-SA 3.0); Mentimun — OakleyOriginals (CC BY).
+
 ## v1.4.0
 
 - **Tambah Tanaman Baru** — di menu Jenis Tanaman sekarang ada tombol tambah:

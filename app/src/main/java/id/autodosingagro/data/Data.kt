@@ -30,7 +30,8 @@ data class Tanaman(
     val nama: String,
     val latin: String,
     val kategori: String,       // "Tanaman Pangan" / "Hortikultura"
-    val ikon: Int,           // emoji sbg ikon visual kartu
+    val ikon: Int,
+    val foto: Int = 0,           // emoji sbg ikon visual kartu
     val panenMin: Int,          // HST awal panen
     val panenMax: Int,          // HST akhir masa tanam
     val jarakTanam: String,
@@ -69,7 +70,7 @@ object TanamanDB {
     private val bawaan: List<Tanaman> = listOf(
         Tanaman(
             id = "padi", nama = "Padi", latin = "Oryza sativa", kategori = "Tanaman Pangan",
-            ikon = R.drawable.ic_padi, panenMin = 105, panenMax = 120, jarakTanam = "25 × 25 cm",
+            ikon = R.drawable.ic_padi, foto = R.drawable.foto_mentimun, foto = R.drawable.foto_bawang_merah, foto = R.drawable.foto_tomat, foto = R.drawable.foto_cabai_rawit, foto = R.drawable.foto_cabai_merah, foto = R.drawable.foto_kedelai, foto = R.drawable.foto_jagung, foto = R.drawable.foto_padi, panenMin = 105, panenMax = 120, jarakTanam = "25 × 25 cm",
             populasiPerHa = 160000,
             deskripsi = "Tanaman pangan utama. Dosis acuan: Urea 225 kg/ha, SP-36 100 kg/ha, KCl 100 kg/ha, dibagi 3 kali aplikasi.",
             fase = listOf(

@@ -390,7 +390,7 @@ fun BerandaScreen(
                     items(TanamanDB.semua) { t ->
                         Kartu(Modifier.width(180.dp).clickable { onDetail(t.id) }) {
                             Column(Modifier.padding(14.dp)) {
-                                TanamanIcon(t, size = 24.dp, color = Biru)
+                                TanamanIcon(t, size = 46.dp, color = Biru)
                                 Spacer(Modifier.height(8.dp))
                                 Text(t.nama, color = TeksGelap, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                                 Text("${t.jadwal.size} Jadwal Pupuk • Panen ${t.panenMin}–${t.panenMax} HST",

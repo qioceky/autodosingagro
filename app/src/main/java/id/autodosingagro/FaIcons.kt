@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -109,7 +110,17 @@ fun FaIcon(
 /** Ikon tanaman dari drawable vektor (set IconOven, lisensi MIT) — digambar sesuai tanamannya. */
 @Composable
 fun TanamanIcon(tanaman: Tanaman, modifier: Modifier = Modifier, size: Dp = 20.dp, color: Color) {
-    IkonTanamanRes(tanaman.ikon, tanaman.nama, modifier, size, color)
+    if (tanaman.foto != 0) {
+        androidx.compose.foundation.Image(
+            painter = painterResource(tanaman.foto),
+            contentDescription = tanaman.nama,
+            modifier = modifier.size(size)
+                .clip(androidx.compose.foundation.shape.RoundedCornerShape(percent = 22)),
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+        )
+    } else {
+        IkonTanamanRes(tanaman.ikon, tanaman.nama, modifier, size, color)
+    }
 }
 
 @Composable

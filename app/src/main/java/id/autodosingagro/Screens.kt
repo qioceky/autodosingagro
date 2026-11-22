@@ -48,7 +48,7 @@ fun PilihanTanaman(terpilih: String, onPilih: (String) -> Unit) {
                     .padding(horizontal = 13.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TanamanIcon(t, size = 14.dp, color = if (aktif) Color.White else Biru)
+                TanamanIcon(t, size = 18.dp, color = if (aktif) Color.White else Biru)
                 Spacer(Modifier.width(7.dp))
                 Text(t.nama, color = if (aktif) Color.White else TeksGelap,
                     fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
@@ -89,7 +89,7 @@ fun TanamanScreen(onDetail: (String) -> Unit, onTambahBaru: () -> Unit = {}) {
                 .clickable { onDetail(t.id) }) {
                 Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
                     Box(Modifier.size(50.dp).clip(RoundedCornerShape(12.dp)).background(BiruSangatMuda),
-                        contentAlignment = Alignment.Center) { TanamanIcon(t, size = 22.dp, color = Biru) }
+                        contentAlignment = Alignment.Center) { TanamanIcon(t, size = 50.dp, color = Biru) }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(t.nama, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
@@ -113,7 +113,7 @@ fun DetailTanamanScreen(tanaman: Tanaman, onBack: () -> Unit, onHitung: () -> Un
                 FaIcon(Fa.CHEV_L, size = 20.sp, color = Biru,
                     modifier = Modifier.clickable { onBack() }.padding(end = 14.dp))
                 Box(Modifier.size(44.dp).clip(RoundedCornerShape(12.dp)).background(BiruSangatMuda),
-                    contentAlignment = Alignment.Center) { TanamanIcon(tanaman, size = 20.dp, color = Biru) }
+                    contentAlignment = Alignment.Center) { TanamanIcon(tanaman, size = 46.dp, color = Biru) }
                 Spacer(Modifier.width(10.dp))
                 Column {
                     Text(tanaman.nama, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
@@ -311,7 +311,7 @@ fun DosisScreen(tanamanSaya: List<TanamanSaya>) {
                 Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
                     Column(Modifier.padding(14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            TanamanIcon(t, size = 18.dp, color = Biru)
+                            TanamanIcon(t, size = 24.dp, color = Biru)
                             Spacer(Modifier.width(8.dp))
                             Text("${t.nama} • Usia $hst HST", color = TeksGelap, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         }
@@ -465,7 +465,7 @@ fun PantauScreen(
             Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
                 Column(Modifier.padding(14.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        TanamanIcon(t, size = 17.dp, color = Biru)
+                        TanamanIcon(t, size = 24.dp, color = Biru)
                         Spacer(Modifier.width(8.dp))
                         Text(ts.label, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TeksGelap,
                             modifier = Modifier.weight(1f))
@@ -724,6 +724,8 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit) {
 
                 Text("Auto Dosing Agro Technology v${BuildConfig.VERSION_NAME} • Ikon UI: Font Awesome Free 6.5.2 (CC BY 4.0); ikon tanaman: set IconOven (MIT) — keduanya dibundel lokal. Data tanaman tersimpan lokal di HP.",
                     fontSize = 11.sp, color = TeksAbu)
+                Text("Kredit foto tanaman (Wikimedia Commons / Flickr, dipotong persegi): Padi — kontributor Wikimedia Commons (CC BY-SA 4.0); Jagung — theilr (CC BY-SA); Kedelai — United Soybean Board (CC BY); Cabai Merah — Johnnybam (CC BY-SA 4.0); Cabai Rawit — Prathvi Acharya (CC BY-SA 4.0); Tomat — Steffen Bauer / saatpilot.de (CC BY 4.0); Bawang Merah — Evan-Amos (CC BY-SA 3.0); Mentimun — OakleyOriginals (CC BY).",
+                    fontSize = 10.sp, color = TeksAbu)
                 Spacer(Modifier.height(12.dp))
             }
         }
