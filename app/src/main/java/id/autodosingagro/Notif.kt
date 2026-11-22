@@ -107,6 +107,28 @@ object PengingatPupuk {
         }
         store.simpanCodes(codes)
     }
+
+    /** Kirim notifikasi contoh sekarang juga (untuk tombol Tes Notifikasi). */
+    fun tesNotifikasi(context: Context) {
+        buatChannel(context)
+        val bukaApp = PendingIntent.getActivity(
+            context, 999001,
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val notif = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notif)
+            .setContentTitle("Waktunya pupuk: Contoh — Petak 1")
+            .setContentText("Ini notifikasi tes. Contoh aslinya: Padi — Pemupukan Dasar (umur 0 HST): NPK 150 kg/ha")
+            .setStyle(NotificationCompat.BigTextStyle().bigText(
+                "Ini notifikasi tes. Nanti di hari pemupukan, isinya seperti ini: Padi — Pemupukan Dasar (umur 0 HST): NPK 150 kg/ha"))
+            .setContentIntent(bukaApp)
+            .setAutoCancel(true)
+            .build()
+        try { NotificationManagerCompat.from(context).notify(999001, notif) } catch (e: Exception) { }
+    }
 }
 
 class PupukReceiver : BroadcastReceiver() {

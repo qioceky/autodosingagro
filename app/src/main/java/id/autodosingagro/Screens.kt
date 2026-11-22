@@ -712,6 +712,25 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boo
                                 )
                             }
                         }
+                        Spacer(Modifier.height(8.dp))
+                        Button(
+                            onClick = {
+                                if (!izinNotif && android.os.Build.VERSION.SDK_INT >= 33) {
+                                    mintaIzin.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                } else {
+                                    PengingatPupuk.tesNotifikasi(context)
+                                    android.widget.Toast.makeText(context,
+                                        "Notifikasi tes terkirim — cek panel notifikasi HP kamu",
+                                        android.widget.Toast.LENGTH_LONG).show()
+                                }
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Biru)
+                        ) {
+                            FaIcon(Fa.BELL, size = 13.sp, color = Color.White)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Tes Notifikasi", fontSize = 13.sp)
+                        }
                         if (pengingatAktif && !izinNotif) {
                             Spacer(Modifier.height(6.dp))
                             Text("Izin notifikasi belum diberikan — pengingat tidak akan muncul sampai izin diberikan.",

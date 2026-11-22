@@ -33,6 +33,13 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.10.0
+
+- **Tombol Tes Notifikasi** di Pengaturan → Pengingat Pupuk: mengirim
+  notifikasi contoh saat itu juga ("Waktunya pupuk: Contoh — Petak 1…") supaya
+  bisa memastikan izin & tampilannya beres tanpa menunggu jadwal beneran.
+  Bila izin belum diberikan, tombol ini meminta izin dulu.
+
 ## v1.9.0
 
 - **Jam pengingat sekarang bisa custom bebas** — selain 8 chip preset, ada
