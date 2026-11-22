@@ -76,6 +76,7 @@ object Fa {
     const val TREND = "\uE098"
     const val TEMP = "\uF2C9"
     const val IMAGE = "\uF03E"
+    const val CLOCK = "\uF017"
 }
 
 private object FaTypeface {

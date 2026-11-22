@@ -584,6 +584,7 @@ fun PantauScreen(
 /* ---------------- PENGATURAN (profil, pembaruan, tentang) ---------------- */
 
 @Composable
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boolean = true, onPengingatChange: (Boolean) -> Unit = {}, pengingatJam: Int = 420, onPengingatJamChange: (Int) -> Unit = {}, pengingatH1: Boolean = false, onPengingatH1Change: (Boolean) -> Unit = {}) {
     val context = LocalContext.current
     var namaEdit by remember(nama) { mutableStateOf(nama) }
@@ -665,6 +666,39 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boo
                                 }
                                 Spacer(Modifier.height(8.dp))
                             }
+                            var tampilPemilihJam by remember { mutableStateOf(false) }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("Jam saat ini: " + "%02d.%02d".format(pengingatJam / 60, pengingatJam % 60),
+                                    fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Biru, modifier = Modifier.weight(1f))
+                                OutlinedButton(onClick = { tampilPemilihJam = true }, shape = RoundedCornerShape(10.dp)) {
+                                    FaIcon(Fa.CLOCK, size = 13.sp, color = Biru)
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("Atur Jam Sendiri", fontSize = 12.sp)
+                                }
+                            }
+                            if (tampilPemilihJam) {
+                                val stateJam = androidx.compose.material3.rememberTimePickerState(
+                                    initialHour = pengingatJam / 60, initialMinute = pengingatJam % 60, is24Hour = true
+                                )
+                                androidx.compose.material3.AlertDialog(
+                                    onDismissRequest = { tampilPemilihJam = false },
+                                    title = { Text("Pilih Jam Pengingat", fontWeight = FontWeight.Bold) },
+                                    text = {
+                                        androidx.compose.material3.TimePicker(state = stateJam)
+                                    },
+                                    confirmButton = {
+                                        Button(onClick = {
+                                            onPengingatJamChange(stateJam.hour * 60 + stateJam.minute)
+                                            tampilPemilihJam = false
+                                        }, shape = RoundedCornerShape(10.dp)) { Text("Simpan") }
+                                    },
+                                    dismissButton = {
+                                        OutlinedButton(onClick = { tampilPemilihJam = false },
+                                            shape = RoundedCornerShape(10.dp)) { Text("Batal") }
+                                    }
+                                )
+                            }
+                            Spacer(Modifier.height(6.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
                                     Text("Ingatkan juga H-1", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = TeksGelap)

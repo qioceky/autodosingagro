@@ -33,6 +33,13 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.9.0
+
+- **Jam pengingat sekarang bisa custom bebas** — selain 8 chip preset, ada
+  tombol **Atur Jam Sendiri** yang membuka pemilih jam (time picker 24 jam):
+  jam & menit berapa pun bisa dipilih (mis. 06.45 atau 19.30). Berlaku untuk
+  pengingat hari-H dan H-1.
+
 ## v1.8.0
 
 - **Pengingat pupuk sekarang bisa diatur lengkap** (Pengaturan → Pengingat
