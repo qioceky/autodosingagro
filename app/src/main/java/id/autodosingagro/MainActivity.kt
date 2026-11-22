@@ -83,6 +83,8 @@ fun App() {
     var tanamanSaya by remember { mutableStateOf(store.loadTanamanSaya()) }
     var logs by remember { mutableStateOf(store.loadLog()) }
     var transaksi by remember { mutableStateOf(store.loadTransaksi()) }
+    var pengingatAktif by remember { mutableStateOf(store.pengingatAktif()) }
+    LaunchedEffect(tanamanSaya, pengingatAktif) { PengingatPupuk.jadwalkanUlang(context) }
     var layar by remember { mutableStateOf<String?>(null) }
     var nama by remember { mutableStateOf(store.namaPengguna()) }
 
@@ -100,6 +102,7 @@ fun App() {
                         },
                         onBack = { layar = null }
                     )
+                    layar == "jadwal" -> JadwalScreen(tanamanSaya = tanamanSaya, pengingatAktif = pengingatAktif, onBack = { layar = null })
                     layar == "diagnosa" -> DiagnosaScreen(onBack = { layar = null })
                     layar == "kalender" -> KalenderScreen(onBack = { layar = null })
                     layar == "usaha" -> UsahaScreen(
@@ -136,7 +139,11 @@ fun App() {
                         onTambahLog = { simpanLog(logs + it) },
                         onHapusLog = { id -> simpanLog(logs.filterNot { l -> l.id == id }) }
                     )
-                    tab == Tab.INFO -> InfoScreen(nama = nama, onSimpanNama = { nama = it; store.simpanNama(it) })
+                    tab == Tab.INFO -> InfoScreen(
+                        nama = nama, onSimpanNama = { nama = it; store.simpanNama(it) },
+                        pengingatAktif = pengingatAktif,
+                        onPengingatChange = { aktif -> pengingatAktif = aktif; store.setPengingatAktif(aktif) }
+                    )
                 }
             }
             BottomNav(tab = tab, onTab = { tab = it; detailId = null; layar = null })
@@ -348,19 +355,14 @@ fun BerandaScreen(
                 Spacer(Modifier.height(12.dp))
                 val menu: List<Triple<String, String, () -> Unit>> = listOf(
                     Triple(Fa.BOOK_OPEN, "Jenis\nTanaman") { onMenu(Tab.TANAMAN) },
-                    Triple(Fa.CALENDAR, "Umur\nTanaman") { onMenu(Tab.PANTAU) },
                     Triple(Fa.SCALE, "Dosis\nPupuk") { onMenu(Tab.DOSIS) },
-                    Triple(Fa.CLIPBOARD, "Jadwal\nPupuk") { onMenu(Tab.TANAMAN) },
-                    Triple(Fa.BULLHORN, "Tanam\nBaru") { onMenu(Tab.PANTAU) },
-                    Triple(Fa.NOTE, "Catat\nTumbuh") { onMenu(Tab.PANTAU) },
-                    Triple(Fa.FOLDER, "Rekapan") { onLayar("usaha") },
+                    Triple(Fa.CLIPBOARD, "Jadwal\nPupuk") { onLayar("jadwal") },
                     Triple(Fa.CALC, "Kalkulator\nDosis") { onMenu(Tab.DOSIS) },
                     Triple(Fa.STETHO, "Diagnosa\nGejala") { onLayar("diagnosa") },
-                    Triple(Fa.CALENDAR, "Kalender\nTanam") { onLayar("kalender") },
-                    Triple(Fa.COINS, "Usaha\nTani") { onLayar("usaha") },
                     Triple(Fa.GEAR, "Pengaturan") { onMenu(Tab.INFO) }
+                ) { onMenu(Tab.INFO) }
                 )
-                menu.chunked(4).forEach { rowItems ->
+                menu.chunked(3).forEach { rowItems ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                         rowItems.forEach { (ikon, label, aksi) ->
                             Kartu(Modifier.weight(1f).clickable { aksi() }) {

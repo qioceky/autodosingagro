@@ -33,6 +33,19 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.7.0
+
+- **Menu Utama dipangkas jadi 6 fokus**: Jenis Tanaman, Dosis Pupuk, Jadwal
+  Pupuk, Kalkulator Dosis, Diagnosa Gejala, Pengaturan. (Fitur lain tetap ada
+  lewat tab bawah: Pantau untuk umur/catat tumbuh, dsb.)
+- **Menu Jadwal Pupuk sekarang layar khusus**: timeline semua aplikasi pupuk
+  per petak lengkap dengan tanggal kalender & status (sudah lewat / HARI INI /
+  n hari lagi).
+- **Notifikasi pengingat pupuk**: alarm jam 07.00 pagi di hari pemupukan
+  (judul petak + pupuk & dosisnya), dijadwalkan ulang otomatis setiap aplikasi
+  dibuka, setiap data tanaman berubah, dan setelah HP menyala ulang (boot
+  receiver). Saklar on/off + permintaan izin notifikasi ada di Pengaturan.
+
 ## v1.6.0
 
 - **Foto tanaman kustom bisa diatur sendiri** — di form Tambah Tanaman Baru,

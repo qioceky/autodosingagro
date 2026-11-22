@@ -190,6 +190,13 @@ class Store(context: Context) {
         prefs.edit().putString("tanaman_kustom", arr.toString()).apply()
     }
 
+    fun pengingatAktif(): Boolean = prefs.getBoolean("pengingat_aktif", true)
+    fun setPengingatAktif(aktif: Boolean) = prefs.edit().putBoolean("pengingat_aktif", aktif).apply()
+    fun prefsCodes(): List<Int> =
+        prefs.getString("pengingat_codes", "")?.split(",")?.mapNotNull { it.toIntOrNull() } ?: emptyList()
+    fun simpanCodes(codes: List<Int>) =
+        prefs.edit().putString("pengingat_codes", codes.joinToString(",")).apply()
+
     fun namaPengguna(): String = prefs.getString("nama", "") ?: ""
     fun simpanNama(nama: String) { prefs.edit().putString("nama", nama).apply() }
 }

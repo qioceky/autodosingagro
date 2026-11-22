@@ -584,7 +584,7 @@ fun PantauScreen(
 /* ---------------- PENGATURAN (profil, pembaruan, tentang) ---------------- */
 
 @Composable
-fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit) {
+fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boolean = true, onPengingatChange: (Boolean) -> Unit = {}) {
     val context = LocalContext.current
     var namaEdit by remember(nama) { mutableStateOf(nama) }
     var statusUpdate by remember { mutableStateOf("belum") } // belum | memeriksa | terbaru | ada | gagal
@@ -613,6 +613,43 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit) {
                         Button(onClick = { onSimpanNama(namaEdit.trim()) },
                             colors = ButtonDefaults.buttonColors(containerColor = Biru),
                             shape = RoundedCornerShape(10.dp)) { Text("Simpan Nama", fontSize = 13.sp) }
+                    }
+                }
+
+                Kartu(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            FaIcon(Fa.BELL, size = 15.sp, color = Biru)
+                            Spacer(Modifier.width(8.dp))
+                            Text("Pengingat Pupuk", fontWeight = FontWeight.Bold, fontSize = 15.sp,
+                                modifier = Modifier.weight(1f))
+                            var izinNotif by remember { mutableStateOf(PengingatPupuk.izinNotifAda(context)) }
+                            val mintaIzin = androidx.activity.compose.rememberLauncherForActivityResult(
+                                androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+                            ) { hasil -> izinNotif = hasil }
+                            Switch(
+                                checked = pengingatAktif,
+                                onCheckedChange = { v ->
+                                    onPengingatChange(v)
+                                    if (v && !izinNotif && android.os.Build.VERSION.SDK_INT >= 33) {
+                                        mintaIzin.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                                    }
+                                },
+                                colors = SwitchDefaults.colors(checkedTrackColor = Biru)
+                            )
+                        }
+                        Spacer(Modifier.height(4.dp))
+                        Text("Notifikasi jam 07.00 pagi di hari jadwal pemupukan tanamanmu (sesuai menu Jadwal Pupuk). Jadwal diperbarui otomatis setiap aplikasi dibuka & setelah HP menyala ulang.",
+                            fontSize = 12.sp, color = TeksAbu)
+                        if (pengingatAktif && !izinNotif) {
+                            Spacer(Modifier.height(6.dp))
+                            Text("Izin notifikasi belum diberikan — pengingat tidak akan muncul sampai izin diberikan.",
+                                fontSize = 12.sp, color = Color(0xFFB3261E))
+                            OutlinedButton(onClick = {
+                                if (android.os.Build.VERSION.SDK_INT >= 33)
+                                    mintaIzin.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                            }, shape = RoundedCornerShape(10.dp)) { Text("Minta Izin Notifikasi", fontSize = 12.sp) }
+                        }
                     }
                 }
 

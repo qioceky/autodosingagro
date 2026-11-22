@@ -480,3 +480,86 @@ fun TambahTanamanScreen(onSimpan: (Tanaman) -> Unit, onBack: () -> Unit) {
         }
     }
 }
+
+/* ---------------- JADWAL PUPUK ---------------- */
+
+@Composable
+fun JadwalScreen(tanamanSaya: List<TanamanSaya>, pengingatAktif: Boolean, onBack: () -> Unit) {
+    val hariIni = LocalDate.now()
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            KepalaLayar("Jadwal Pupuk", "Semua jadwal pemupukan tanamanmu lengkap dengan tanggalnya", onBack)
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp)) {
+                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    FaIcon(Fa.BELL, size = 18.sp, color = if (pengingatAktif) Hijau else TeksAbu)
+                    Spacer(Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            if (pengingatAktif) "Notifikasi pengingat AKTIF" else "Notifikasi pengingat MATI",
+                            fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TeksGelap
+                        )
+                        Text(
+                            if (pengingatAktif) "Kamu akan diingatkan jam 07.00 pagi di hari pemupukan. Atur di menu Pengaturan."
+                            else "Aktifkan saklar Pengingat Pupuk di menu Pengaturan agar diingatkan jam 07.00 di hari pemupukan.",
+                            fontSize = 12.sp, color = TeksAbu
+                        )
+                    }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+        }
+        if (tanamanSaya.isEmpty()) {
+            item {
+                Text("Belum ada tanaman dipantau. Tambahkan tanamanmu dulu di menu Pantau — jadwal pupuknya otomatis tampil di sini.",
+                    color = TeksAbu, modifier = Modifier.padding(horizontal = 18.dp))
+            }
+        }
+        items(tanamanSaya) { ts ->
+            val t = TanamanDB.byId(ts.tanamanId) ?: TanamanDB.semua.first()
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Column(Modifier.padding(14.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TanamanIcon(t, size = 30.dp, color = Biru)
+                        Spacer(Modifier.width(10.dp))
+                        Column {
+                            Text(ts.label, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                            Text("${t.nama} • Tanam ${ts.tanggalTanam.format(fmtTanggal)} • Umur ${ts.hst()} HST",
+                                fontSize = 12.sp, color = TeksAbu)
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    t.jadwal.sortedBy { it.hst }.forEach { app ->
+                        val tanggal = ts.tanggalTanam.plusDays(app.hst.toLong())
+                        val selisih = tanggal.toEpochDay() - hariIni.toEpochDay()
+                        Row(Modifier.fillMaxWidth().padding(vertical = 5.dp), verticalAlignment = Alignment.Top) {
+                            Column(Modifier.weight(1f)) {
+                                Text("${app.label} — umur ${app.hst} HST", fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold, color = BiruKartu)
+                                Text(app.pupuk.joinToString { p -> "${p.nama} ${"%.0f".format(p.kgPerHa)} kg/ha" },
+                                    fontSize = 12.sp, color = TeksGelap)
+                            }
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(tanggal.format(fmtTanggal), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    when {
+                                        selisih < 0 -> "sudah lewat"
+                                        selisih == 0L -> "HARI INI"
+                                        else -> "$selisih hari lagi"
+                                    },
+                                    fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                                    color = when {
+                                        selisih < 0 -> TeksAbu
+                                        selisih == 0L -> Hijau
+                                        selisih <= 3 -> Oranye
+                                        else -> TeksAbu
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        item { Spacer(Modifier.height(16.dp)) }
+    }
+}
