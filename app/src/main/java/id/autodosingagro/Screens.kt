@@ -618,15 +618,15 @@ fun InfoScreen(nama: String, onSimpanNama: (String) -> Unit, pengingatAktif: Boo
 
                 Kartu(Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(14.dp)) {
+                        var izinNotif by remember { mutableStateOf(PengingatPupuk.izinNotifAda(context)) }
+                        val mintaIzin = androidx.activity.compose.rememberLauncherForActivityResult(
+                            androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+                        ) { hasil -> izinNotif = hasil }
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             FaIcon(Fa.BELL, size = 15.sp, color = Biru)
                             Spacer(Modifier.width(8.dp))
                             Text("Pengingat Pupuk", fontWeight = FontWeight.Bold, fontSize = 15.sp,
                                 modifier = Modifier.weight(1f))
-                            var izinNotif by remember { mutableStateOf(PengingatPupuk.izinNotifAda(context)) }
-                            val mintaIzin = androidx.activity.compose.rememberLauncherForActivityResult(
-                                androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
-                            ) { hasil -> izinNotif = hasil }
                             Switch(
                                 checked = pengingatAktif,
                                 onCheckedChange = { v ->
