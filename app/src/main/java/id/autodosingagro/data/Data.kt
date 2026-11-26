@@ -318,12 +318,15 @@ data class PupukPilihan(
 )
 
 object PupukDB {
-    // Jenis pupuk di Kalkulator Dosis — sesuai ketetapan user (2026-11-19): hanya 4 ini.
+    // Jenis pupuk di Kalkulator Dosis — 6 jenis sesuai dokumen sistem (keputusan user 2026-11-26):
+    // NPK, KCl, UREA, SP36, KNO3, MKP.
     val semua: List<PupukPilihan> = listOf(
         PupukPilihan("NPK", 150.0, true, "Pupuk majemuk N-P-K seimbang, praktis untuk susulan — di jadwal tertulis sbg NPK 16-16-16.", faktorKocor = 0.67),
+        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah, umbi & ketahanan tanaman.", faktorKocor = 0.7),
+        PupukPilihan("Urea", 100.0, true, "Sumber N utama untuk daun & pertumbuhan vegetatif. Kocor jangan sampai kena daun — bisa gosong.", faktorKocor = 0.8),
+        PupukPilihan("SP-36", 100.0, false, "Sumber P untuk akar & awal pertumbuhan — sukar larut, berikan TABUR sebagai pupuk dasar, bukan kocor.", faktorKocor = 1.0),
         PupukPilihan("KNO3", 50.0, true, "Sumber K + N nitrat, cocok fase generatif (bunga & buah) & dikocor.", faktorKocor = 0.8),
-        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor.", faktorKocor = 1.0),
-        PupukPilihan("KCl", 50.0, true, "Sumber K — untuk bunga, buah, umbi & ketahanan tanaman.", faktorKocor = 0.7)
+        PupukPilihan("MKP", 25.0, true, "Sumber P + K, merangsang bunga — dosis kecil, biasanya dikocor.", faktorKocor = 1.0)
     )
     fun byNama(nama: String): PupukPilihan? = semua.firstOrNull { it.nama.equals(nama, ignoreCase = true) }
 }

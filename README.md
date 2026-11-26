@@ -33,6 +33,15 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.13.0
+
+- **Kalkulator Dosis: jenis pupuk kini 6 sesuai dokumen** — ditambah **Urea**
+  (acuan 100 kg/ha, bisa kocor faktor ×0,8) dan **SP-36** (acuan 100 kg/ha,
+  khusus tabur sebagai pupuk dasar — kalkulator memberi catatan bila cara
+  Kocor dipilih). Urutan daftar mengikuti dokumen: NPK, KCl, Urea, SP-36,
+  KNO3, MKP. Dosis dari jadwal tanaman (mis. Urea & SP-36 di jadwal padi)
+  otomatis terbaca kalkulator.
+
 ## v1.12.0
 
 Menu Utama dipertegas sesuai dokumen sistem (SISTEM_APLIKASI_PERTANIAN):
