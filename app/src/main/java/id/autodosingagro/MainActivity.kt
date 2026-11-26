@@ -351,7 +351,6 @@ fun BerandaScreen(
                     Triple(Fa.CALC, "Kalkulator\nDosis") { onMenu(Tab.DOSIS) },
                     Triple(Fa.STETHO, "Diagnosis\nTanaman") { onLayar("diagnosa") },
                     Triple(Fa.GEAR, "Pengaturan") { onMenu(Tab.INFO) }
-                ) { onMenu(Tab.INFO) }
                 )
                 menu.chunked(3).forEach { rowItems ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
