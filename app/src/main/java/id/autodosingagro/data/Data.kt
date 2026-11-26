@@ -210,6 +210,99 @@ object TanamanDB {
                 AplikasiPupuk("Susulan 2", 20, listOf(Pupuk("NPK 16-16-16", 100.0)), "Saat mulai berbunga."),
                 AplikasiPupuk("Susulan 3", 30, listOf(Pupuk("NPK 16-16-16", 75.0), Pupuk("KCl", 50.0)), "Pengisian buah pertama.")
             )
+        ),
+        Tanaman(
+            id = "paria", nama = "Paria / Pare", latin = "Momordica charantia", kategori = "Hortikultura",
+            ikon = R.drawable.ic_paria, foto = R.drawable.foto_paria, panenMin = 55, panenMax = 90, jarakTanam = "100 × 60 cm (lanjaran)",
+            populasiPerHa = 16000,
+            deskripsi = "Sayuran buah merambat, panen bertahap mulai ±55 HST. Dosis acuan: kandang 10 ton/ha + NPK bertahap, KCl saat berbuah.",
+            fase = listOf(
+                Fase("Perkecambahan", 0, 7, "Benih berkecambah, daun lembaga membuka.", "Tanah lembap terus, jangan tergenang."),
+                Fase("Vegetatif / Merambat", 8, 25, "Sulur memanjang, daun melebar.", "Pasang lanjaran/paranet, arahkan sulur, pangkas tunas air berlebih."),
+                Fase("Berbunga", 26, 40, "Bunga jantan & betina muncul bergantian.", "Air cukup, waspada lalat buah mulai fase ini."),
+                Fase("Berbuah", 41, 54, "Buah muda membesar & bergerigi khas pare.", "Bungkus buah muda untuk cegah lalat buah."),
+                Fase("Panen Bertahap", 55, 90, "Buah dipetik saat gerigi masih rapat, belum menguning.", "Petik tiap 2–3 hari agar tanaman terus berbuah.")
+            ),
+            jadwal = listOf(
+                AplikasiPupuk("Dasar", -3, listOf(Pupuk("Pupuk Kandang", 10000.0), Pupuk("SP-36", 150.0)), "Campur ke lubang tanam sebelum tanam."),
+                AplikasiPupuk("Susulan 1", 14, listOf(Pupuk("NPK 16-16-16", 100.0)), "Kocor / tugal saat sulur aktif."),
+                AplikasiPupuk("Susulan 2", 28, listOf(Pupuk("NPK 16-16-16", 100.0), Pupuk("KCl", 50.0)), "Awal berbunga."),
+                AplikasiPupuk("Susulan 3", 42, listOf(Pupuk("NPK 16-16-16", 75.0), Pupuk("KCl", 50.0)), "Pengisian buah pertama.")
+            )
+        ),
+        Tanaman(
+            id = "labu-madu", nama = "Labu Madu", latin = "Cucurbita moschata", kategori = "Hortikultura",
+            ikon = R.drawable.ic_labu_madu, foto = R.drawable.foto_labu_madu, panenMin = 85, panenMax = 110, jarakTanam = "200 × 100 cm",
+            populasiPerHa = 5000,
+            deskripsi = "Labu manis berbentuk botol, dipanen tua umur ±85–110 HST. Dosis acuan: kandang 10 ton/ha + NPK & KCl bertahap.",
+            fase = listOf(
+                Fase("Perkecambahan", 0, 7, "Benih berkecambah, daun lembaga besar membuka.", "Tanah lembap, jauhkan dari genangan."),
+                Fase("Vegetatif", 8, 30, "Sulur menjalar cepat, daun lebar.", "Atur arah sulur, beri alas jerami agar buah tidak kontak tanah basah."),
+                Fase("Berbunga", 31, 50, "Bunga besar kuning, bunga betina punya bakal buah di pangkalnya.", "Bantu penyerbukan pagi hari bila lebah sedikit."),
+                Fase("Pembesaran Buah", 51, 84, "Buah membesar, kulit mengeras & berubah krem.", "Batasi 2–3 buah per tanaman agar besar maksimal."),
+                Fase("Pematangan & Panen", 85, 110, "Tangkai mengering, kulit keras & warna krem merata.", "Panen dengan tangkai, simpan di tempat kering — makin lama disimpan makin manis.")
+            ),
+            jadwal = listOf(
+                AplikasiPupuk("Dasar", -3, listOf(Pupuk("Pupuk Kandang", 10000.0), Pupuk("SP-36", 150.0)), "Campur ke lubang tanam sebelum tanam."),
+                AplikasiPupuk("Susulan 1", 21, listOf(Pupuk("NPK 16-16-16", 100.0)), "Saat sulur aktif menjalar."),
+                AplikasiPupuk("Susulan 2", 40, listOf(Pupuk("NPK 16-16-16", 100.0), Pupuk("KCl", 75.0)), "Awal berbuah."),
+                AplikasiPupuk("Susulan 3", 60, listOf(Pupuk("KCl", 50.0)), "Pembesaran buah — K untuk kemanisan.")
+            )
+        ),
+        Tanaman(
+            id = "semangka", nama = "Semangka", latin = "Citrullus lanatus", kategori = "Hortikultura",
+            ikon = R.drawable.ic_semangka, foto = R.drawable.foto_semangka, panenMin = 70, panenMax = 90, jarakTanam = "200 × 60 cm",
+            populasiPerHa = 8000,
+            deskripsi = "Buah besar berair, panen umur ±70–90 HST. Dosis acuan: kandang 15 ton/ha + NPK & KCl bertahap, K tinggi saat pembesaran buah.",
+            fase = listOf(
+                Fase("Perkecambahan", 0, 7, "Benih berkecambah, daun lembaga membuka.", "Media lembap, semai di polibag lebih aman."),
+                Fase("Vegetatif", 8, 25, "Sulur menjalar, daun menjari.", "Atur sulur searah bedengan, mulsa membantu menekan gulma."),
+                Fase("Berbunga", 26, 40, "Bunga betina muncul di ketiak daun.", "Penyerbukan pagi hari; batasi buah 2–3 per tanaman."),
+                Fase("Pembesaran Buah", 41, 69, "Buah membesar cepat, butuh air & K banyak.", "Air jangan putus; beri alas agar buah tidak busuk."),
+                Fase("Pematangan & Panen", 70, 90, "Sulur di pangkal buah mengering, bunyi buah nyaring saat diketuk.", "Kurangi air 5–7 hari sebelum panen agar manis.")
+            ),
+            jadwal = listOf(
+                AplikasiPupuk("Dasar", -3, listOf(Pupuk("Pupuk Kandang", 15000.0), Pupuk("SP-36", 200.0)), "Campur ke lubang/bedengan sebelum tanam."),
+                AplikasiPupuk("Susulan 1", 15, listOf(Pupuk("NPK 16-16-16", 100.0)), "Kocor saat sulur aktif."),
+                AplikasiPupuk("Susulan 2", 30, listOf(Pupuk("NPK 16-16-16", 100.0), Pupuk("KCl", 50.0)), "Awal berbuah."),
+                AplikasiPupuk("Susulan 3", 45, listOf(Pupuk("KCl", 75.0), Pupuk("NPK 16-16-16", 50.0)), "Pembesaran buah — K untuk ukuran & kemanisan.")
+            )
+        ),
+        Tanaman(
+            id = "melon", nama = "Melon", latin = "Cucumis melo", kategori = "Hortikultura",
+            ikon = R.drawable.ic_melon, foto = R.drawable.foto_melon, panenMin = 60, panenMax = 80, jarakTanam = "120 × 60 cm (lanjaran)",
+            populasiPerHa = 13000,
+            deskripsi = "Buah manis berjaring (net), panen umur ±60–80 HST. Dosis acuan: kandang 10 ton/ha + NPK & KCl bertahap.",
+            fase = listOf(
+                Fase("Perkecambahan", 0, 7, "Benih berkecambah cepat, daun lembaga membuka.", "Semai di polibag, pindah tanam umur 10–14 hari."),
+                Fase("Vegetatif", 8, 22, "Batang memanjang, sulur keluar.", "Ikat ke lanjaran, pangkas cabang bawah."),
+                Fase("Berbunga", 23, 35, "Bunga betina di cabang lateral.", "Bantu penyerbukan; pilih 1–2 buah terbaik per tanaman."),
+                Fase("Pembesaran Buah", 36, 59, "Buah membesar, jaring (net) mulai terbentuk.", "Gantung buah dengan jaring/tali; air stabil agar tidak pecah."),
+                Fase("Pematangan & Panen", 60, 80, "Aroma harum, tangkai mulai retak (slip).", "Kurangi air menjelang panen agar manis maksimal.")
+            ),
+            jadwal = listOf(
+                AplikasiPupuk("Dasar", -3, listOf(Pupuk("Pupuk Kandang", 10000.0), Pupuk("SP-36", 200.0)), "Campur ke bedengan sebelum tanam."),
+                AplikasiPupuk("Susulan 1", 14, listOf(Pupuk("NPK 16-16-16", 100.0)), "Kocor saat vegetatif aktif."),
+                AplikasiPupuk("Susulan 2", 28, listOf(Pupuk("NPK 16-16-16", 100.0), Pupuk("KCl", 50.0)), "Awal berbuah."),
+                AplikasiPupuk("Susulan 3", 42, listOf(Pupuk("KCl", 75.0)), "Pembesaran buah — K untuk kemanisan & net.")
+            )
+        ),
+        Tanaman(
+            id = "sawi", nama = "Sawi Hijau", latin = "Brassica juncea", kategori = "Hortikultura",
+            ikon = R.drawable.ic_sawi, foto = R.drawable.foto_sawi, panenMin = 30, panenMax = 45, jarakTanam = "25 × 25 cm",
+            populasiPerHa = 160000,
+            deskripsi = "Sayuran daun umur sangat pendek, panen ±30–45 HST. Dosis acuan: kandang 10 ton/ha + NPK dua kali susulan.",
+            fase = listOf(
+                Fase("Perkecambahan", 0, 5, "Benih kecil berkecambah serempak.", "Bedengan lembap, tutup tipis dengan jerami/karung basah."),
+                Fase("Vegetatif Awal", 6, 15, "Daun sejati 3–5 helai, tanaman mulai rimbun.", "Penjarangan bila terlalu rapat; siram pagi & sore."),
+                Fase("Pembentukan Daun", 16, 29, "Daun melebar & menebal, warna hijau segar.", "Jaga kelembapan tanah; waspada ulat & kutu daun."),
+                Fase("Panen", 30, 45, "Daun besar & segar, sebelum berbunga.", "Panen cabut atau potong pangkal; jangan tunggu berbunga (daun pahit & keras).")
+            ),
+            jadwal = listOf(
+                AplikasiPupuk("Dasar", -3, listOf(Pupuk("Pupuk Kandang", 10000.0), Pupuk("SP-36", 100.0)), "Campur merata ke bedengan sebelum tanam."),
+                AplikasiPupuk("Susulan 1", 10, listOf(Pupuk("NPK 16-16-16", 75.0)), "Kocor / tabur antar baris."),
+                AplikasiPupuk("Susulan 2", 20, listOf(Pupuk("NPK 16-16-16", 75.0)), "Pembentukan daun — berhenti pupuk ±7 hari sebelum panen.")
+            )
         )
     )
 
@@ -260,7 +353,12 @@ object KalenderDB {
         "cabai-rawit" to ("Akhir musim hujan / awal kemarau, lebih bandel dari cabai merah" to listOf(3, 4, 5, 8, 9, 10)),
         "tomat" to ("Musim kemarau — buah tidak mudah busuk & penyakit daun lebih ringan" to listOf(4, 5, 6, 7, 8)),
         "bawang-merah" to ("Musim kemarau — umbi peka genangan & hujan" to listOf(4, 5, 6, 7, 8, 9)),
-        "mentimun" to ("Sepanjang tahun, terbaik awal hujan & awal kemarau" to listOf(2, 3, 4, 5, 8, 9, 10, 11))
+        "mentimun" to ("Sepanjang tahun, terbaik awal hujan & awal kemarau" to listOf(2, 3, 4, 5, 8, 9, 10, 11)),
+        "paria" to ("Awal kemarau & awal hujan — butuh sinar penuh & lanjaran" to listOf(3, 4, 5, 9, 10, 11)),
+        "labu-madu" to ("Musim kemarau — buah tidak mudah busuk" to listOf(4, 5, 6, 7, 8)),
+        "semangka" to ("Musim kemarau — manis maksimal, penyakit lebih ringan" to listOf(4, 5, 6, 7, 8)),
+        "melon" to ("Musim kemarau — hindari hujan saat pembesaran buah" to listOf(4, 5, 6, 7, 8)),
+        "sawi" to ("Sepanjang tahun, terbaik musim kemarau dengan penyiraman cukup" to listOf(3, 4, 5, 6, 7, 8, 9))
     )
     fun musimBulan(bulan: Int): String = if (bulan in listOf(10, 11, 12, 1, 2, 3, 4)) "Musim Hujan" else "Musim Kemarau"
 }
@@ -300,5 +398,130 @@ object GejalaDB {
         Gejala("Pertumbuhan kerdil", "\uF4D8",
             "Tanah padat / masam, pupuk dasar kurang, atau akar terganggu (genangan, nematoda).",
             "Gemburkan tanah, cek pH (target 5,5–7), tambah pupuk kandang/kompos matang, lalu susulan NPK sesuai jadwal umur tanaman.")
+    )
+}
+
+/** Organisme Pengganggu Tanaman (OPT): hama & penyakit utama + pencegahan/pengendalian. */
+data class Opt(
+    val nama: String,
+    val jenis: String,          // "Hama" / "Penyakit"
+    val foto: Int = 0,
+    val sasaran: String,
+    val gejala: String,
+    val pencegahan: String,
+    val pengendalian: String
+)
+
+object OptDB {
+    val semua: List<Opt> = listOf(
+        Opt("Wereng Coklat", "Hama", R.drawable.opt_wereng, "Padi",
+            "Tanaman menguning lalu kering seperti terbakar (hopperburn), wereng bergerombol di pangkal batang mengisap cairan.",
+            "Varietas tahan wereng, tanam serempak satu hamparan, jarak tanam tidak terlalu rapat, hindari pupuk urea berlebihan.",
+            "Lestarikan musuh alami (laba-laba, kepik, parasitoid). Bila populasi >20 ekor/rumpun, semprot insektisida sistemik sesuai label; keringkan sawah berkala."),
+        Opt("Ulat Grayak", "Hama", R.drawable.opt_ulat_grayak, "Jagung, sayuran, padi",
+            "Daun berlubang & robek, ulat bergerombol di pucuk, kotoran ulat terlihat; serangan berat menggunduli tanaman semalam.",
+            "Sanitasi gulma & sisa tanaman, pasang perangkap feromon, tanam serempak.",
+            "Pungut & musnahkan gerombolan ulat manual, semprot bakteri Bacillus thuringiensis (Bt); insektisida hanya bila serangan berat & meluas."),
+        Opt("Kutu Daun", "Hama", R.drawable.opt_kutu_daun, "Cabai, tomat, sayuran daun",
+            "Daun keriting & menggulung, permukaan lengket oleh embun madu, banyak semut; kutu hijau/hitam bergerombol di pucuk & bawah daun.",
+            "Mulsa plastik perak, lestarikan kumbang koksi & parasitoid, hindari nitrogen berlebih.",
+            "Semprot air sabun / minyak nimba, cuci daun dengan air bertekanan; insektisida kontak bila populasi meledak."),
+        Opt("Penggerek Batang Padi", "Hama", 0, "Padi",
+            "Sundep: pucuk layu & mati saat vegetatif. Beluk: malai putih hampa saat generatif. Batang mudah dicabut, ada larva di dalam.",
+            "Tanam serempak, sanitasi tunggul & jerami terinfeksi, varietas agak tahan.",
+            "Lepas parasitoid telur Trichogramma; insektisida granular sistemik di awal serangan sundep."),
+        Opt("Lalat Buah", "Hama", 0, "Cabai, melon, semangka, paria, labu",
+            "Buah ada bintik tusukan, membusuk dari dalam, belatung di daging buah; buah gugur sebelum tua.",
+            "Bungkus buah muda, pasang perangkap metil eugenol, sanitasi buah jatuh & busuk.",
+            "Kumpulkan & kubur/bakar buah terinfeksi; perangkap massal untuk menekan populasi jantan."),
+        Opt("Blast Padi", "Penyakit", R.drawable.opt_blast, "Padi",
+            "Bercak belah ketupat abu-abu di daun; blast leher: pangkal malai busuk hitam sehingga malai patah & gabah hampa.",
+            "Varietas tahan, hindari urea berlebih, jarak tanam agak lebar, benih sehat & perlakuan benih.",
+            "Fungisida trisiklazol saat gejala awal muncul, terutama menjelang berbunga di daerah endemik."),
+        Opt("Hawar Daun Bakteri (Kresek)", "Penyakit", R.drawable.opt_hawar, "Padi",
+            "Tepi daun mengering bergelombang kuning keabu-abuan dari ujung, daun seperti terbakar; tanaman muda bisa mati (kresek).",
+            "Benih sehat, sanitasi jerami sakit, hindari luka saat pindah tanam, varietas tahan.",
+            "Kurangi genangan & pupuk N, semprot bakterisida berbahan tembaga; tanaman parah dicabut."),
+        Opt("Layu Fusarium", "Penyakit", R.drawable.opt_layu_fusarium, "Tomat, cabai, melon, semangka",
+            "Layu sepihak mulai daun bawah, menguning, pangkal batang coklat bila dibelah; tanaman mati perlahan meski tanah basah.",
+            "Rotasi tanaman, drainase baik, bibit sehat, jangan pindah tanah dari lahan sakit.",
+            "Cabut & bakar tanaman sakit beserta tanah di sekitarnya; aplikasikan Trichoderma harzianum di lubang tanam."),
+        Opt("Antraknosa (Patek)", "Penyakit", R.drawable.opt_antraknosa, "Cabai, tomat, melon",
+            "Bercak hitam cekung melingkar di buah, buah membusuk & mengering seperti mumi; menyerang saat buah mulai masak.",
+            "Benih sehat, jarak tanam cukup, mulsa, hindari penyiraman dari atas saat berbuah.",
+            "Petik & musnahkan buah sakit, fungisida mankozeb/propineb bergilir sesuai label."),
+        Opt("Virus Kuning (Gemini)", "Penyakit", 0, "Cabai, tomat",
+            "Daun menguning terang, keriting & mengecil, tanaman kerdil; ditularkan kutu kebul (whitefly).",
+            "Bibit sehat & bebas virus, perangkap kuning lengket, tanaman penghalang (jagung) di tepi lahan, mulsa perak.",
+            "Cabut & bakar tanaman bergejala sejak dini; kendalikan kutu kebul dengan insektisida kontak/nimba.")
+    )
+}
+
+/** Alur budidaya: tahapan umum dari benih sampai pascapanen. */
+data class TahapBudidaya(
+    val nama: String,
+    val foto: Int = 0,
+    val ringkasan: String,
+    val langkah: List<String>
+)
+
+object AlurDB {
+    val semua: List<TahapBudidaya> = listOf(
+        TahapBudidaya("1. Persiapan Benih & Persemaian", R.drawable.alur_persemaian,
+            "Benih bermutu adalah separuh keberhasilan. Untuk padi & sayuran buah, benih disemai dulu; sawi & semangka bisa tanam langsung/semaian singkat.",
+            listOf(
+                "Pilih benih berlabel/bersertifikat, daya tumbuh >85%; rendam & tiriskan untuk benih besar (paria, labu, semangka).",
+                "Semai di bedengan/polybag media tanah + kompos (1:1), jaga lembap, beri naungan 50%.",
+                "Pindah tanam saat bibit berdaun sejati 3–5 helai (padi 15–21 hari, sayuran buah 10–14 hari)."
+            )),
+        TahapBudidaya("2. Pengolahan Lahan & Bedengan", R.drawable.alur_olah_lahan,
+            "Lahan diolah agar gembur, drainase baik, dan gulma terkendali sebelum tanam.",
+            listOf(
+                "Bajak/cangkul sedalam 20–30 cm, buat bedengan lebar 80–100 cm untuk sayuran, parit drainase antar bedengan.",
+                "Campurkan pupuk kandang matang 10–20 ton/ha + kapur dolomit bila tanah masam (pH <5,5), diamkan 5–7 hari.",
+                "Pasang mulsa plastik hitam-perak untuk cabai, tomat, melon & semangka — menekan gulma & mengurangi percikan tanah pembawa penyakit."
+            )),
+        TahapBudidaya("3. Penanaman", R.drawable.alur_tanam,
+            "Tanam pada sore hari agar bibit tidak stres, sesuai jarak tanam tiap komoditas.",
+            listOf(
+                "Buat lubang tanam, beri pupuk dasar (SP-36/NPK) tercampur tanah — jangan kontak langsung dengan akar.",
+                "Tanam bibit tegak, padatkan tanah di pangkal, siram secukupnya (kocor awal).",
+                "Sulam (ganti) bibit mati dalam 3–5 hari pertama agar populasi tetap penuh."
+            )),
+        TahapBudidaya("4. Pemeliharaan: Air & Penyiangan", 0,
+            "Air yang stabil dan lahan bebas gulma membuat tanaman tumbuh seragam.",
+            listOf(
+                "Siram pagi/sore; sayuran buah butuh air stabil — kekeringan saat berbunga membuat bunga rontok.",
+                "Siangi gulma 2–3 kali (umur 15, 30, 45 HST) sebelum gulma berbunga.",
+                "Pasang ajir/lanjaran untuk tomat, paria, melon & mentimun sejak umur ±15 HST."
+            )),
+        TahapBudidaya("5. Pemupukan", 0,
+            "Pupuk diberikan bertahap mengikuti fase: dasar sebelum tanam, susulan saat vegetatif & generatif. Hitung dosisnya di menu Kalkulator Dosis.",
+            listOf(
+                "Pupuk dasar: kandang + SP-36 sebelum/saat tanam untuk akar & awal tumbuh.",
+                "Susulan vegetatif: NPK/Urea untuk daun & batang; susulan generatif: tambah KCl/KNO3 untuk bunga, buah & kemanisan.",
+                "Cara tabur ditugal lalu ditutup tanah; cara kocor dilarutkan & disiram ke pangkal — dosis kocor lebih hemat (lihat faktor di kalkulator)."
+            )),
+        TahapBudidaya("6. Pengendalian OPT", 0,
+            "Amati tanaman minimal seminggu sekali; kendalikan hama & penyakit sejak gejala awal (lihat menu Organisme Perusak Tanaman).",
+            listOf(
+                "Pantau pucuk, bawah daun & buah — catat gejala di menu Diagnosis Tanaman.",
+                "Utamakan cara mekanis & hayati: pungut ulat, perangkap, bungkus buah, musuh alami.",
+                "Pestisida kimia pilihan terakhir: tepat sasaran, tepat dosis, perhatikan waktu panen (masa tunggu)."
+            )),
+        TahapBudidaya("7. Panen", R.drawable.alur_panen,
+            "Panen pada umur & tingkat kematangan yang tepat menentukan mutu & harga.",
+            listOf(
+                "Padi: 85–90% gabah menguning. Sayuran buah: petik bertahap tiap 2–3 hari (cabai, paria, mentimun).",
+                "Semangka & labu madu: panen tua sekali petik — tandai dengan sulur pangkal buah kering & bunyi nyaring.",
+                "Sawi: panen 30–45 HST sebelum berbunga agar daun tidak pahit & keras."
+            )),
+        TahapBudidaya("8. Pascapanen", 0,
+            "Penanganan setelah panen menjaga mutu sampai ke pembeli/konsumen.",
+            listOf(
+                "Sortasi: pisahkan yang rusak/terinfeksi OPT; bersihkan tanah & kotoran.",
+                "Padi dijemur/dikeringkan ke kadar air ±14% sebelum disimpan/digiling.",
+                "Sayuran daun & buah segar: simpan di tempat teduh & sejuk, jual secepatnya; labu madu justru makin manis setelah disimpan 1–2 minggu."
+            ))
     )
 }

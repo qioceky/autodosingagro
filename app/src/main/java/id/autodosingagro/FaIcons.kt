@@ -84,6 +84,7 @@ object Fa {
     const val SMOG = "\uF75F"
     const val WIND = "\uF72E"
     const val PIN = "\uF3C5"
+    const val CAMERA = "\uF030"
 }
 
 private object FaTypeface {

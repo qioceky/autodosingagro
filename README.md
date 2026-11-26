@@ -33,6 +33,30 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.12.0
+
+Menu Utama dipertegas sesuai dokumen sistem (SISTEM_APLIKASI_PERTANIAN):
+
+- **Menu Utama sekarang persis 6 menu dokumen**: Jenis Tanaman, Organisme
+  Perusak Tanaman, Alur Budidaya, Kalkulator Dosis, Diagnosis Tanaman,
+  Pengaturan. (Jadwal Pupuk tetap bisa dibuka dari kartu Kegiatan Hari Ini
+  di Beranda; Dosis Pupuk menyatu ke Kalkulator Dosis.)
+- **Menu baru Organisme Perusak Tanaman**: 10 OPT utama (wereng coklat, ulat
+  grayak, kutu daun, penggerek batang, lalat buah, blast, hawar daun bakteri,
+  layu fusarium, antraknosa, virus kuning) — gejala, pencegahan &
+  pengendalian, 7 di antaranya bergambar (Wikimedia Commons CC).
+- **Menu baru Alur Budidaya**: 8 tahapan dari persiapan benih sampai
+  pascapanen, 4 tahap bergambar.
+- **5 tanaman baru sesuai dokumen**: Paria/Pare, Labu Madu, Semangka, Melon,
+  Sawi Hijau — lengkap dengan fase pertumbuhan, jadwal pupuk, foto asli &
+  kalender tanam (total 13 tanaman bawaan).
+- **Diagnosis Tanaman**: tombol **Scan / Foto Tanaman Rusak** (kamera) —
+  foto ditampilkan untuk dicocokkan dengan daftar gejala.
+- **Beranda**: strip **Tanaman yang Sedang Diamati** (progres fase tanaman
+  Pantau), dan deretan Kategori Tanaman kini **bergerak otomatis** ke kanan.
+- **Notifikasi H-1 kini default menyala** (sesuai dokumen: notifikasi muncul
+  1 hari sebelum waktu pemupukan).
+
 ## v1.11.0
 
 - **Kotak Menu Utama seragam + tema tanaman**: semua kotak sekarang tinggi

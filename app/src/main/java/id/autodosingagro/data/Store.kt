@@ -206,7 +206,7 @@ class Store(context: Context) {
     fun pengingatAktif(): Boolean = prefs.getBoolean("pengingat_aktif", true)
     fun pengingatJam(): Int = prefs.getInt("pengingat_jam", 420) // menit sejak 00.00, default 07.00
     fun setPengingatJam(menit: Int) = prefs.edit().putInt("pengingat_jam", menit).apply()
-    fun pengingatH1(): Boolean = prefs.getBoolean("pengingat_h1", false)
+    fun pengingatH1(): Boolean = prefs.getBoolean("pengingat_h1", true)
     fun setPengingatH1(aktif: Boolean) = prefs.edit().putBoolean("pengingat_h1", aktif).apply()
     fun setPengingatAktif(aktif: Boolean) = prefs.edit().putBoolean("pengingat_aktif", aktif).apply()
     fun prefsCodes(): List<Int> =

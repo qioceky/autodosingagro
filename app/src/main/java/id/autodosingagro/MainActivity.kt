@@ -107,6 +107,8 @@ fun App() {
                         onBack = { layar = null }
                     )
                     layar == "jadwal" -> JadwalScreen(tanamanSaya = tanamanSaya, pengingatAktif = pengingatAktif, onBack = { layar = null })
+                    layar == "opt" -> OptScreen(onBack = { layar = null })
+                    layar == "alur" -> AlurScreen(onBack = { layar = null })
                     layar == "diagnosa" -> DiagnosaScreen(onBack = { layar = null })
                     layar == "kalender" -> KalenderScreen(onBack = { layar = null })
                     layar == "usaha" -> UsahaScreen(
@@ -309,7 +311,10 @@ fun BerandaScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             FaIcon(Fa.BELL, size = 15.sp, color = Biru)
                             Spacer(Modifier.width(8.dp))
-                            Text("Kegiatan Hari Ini", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                            Text("Kegiatan Hari Ini", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap,
+                                modifier = Modifier.weight(1f))
+                            Text("Jadwal Pupuk", fontSize = 12.sp, color = Biru, fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clickable { onLayar("jadwal") }.padding(4.dp))
                         }
                         Spacer(Modifier.height(8.dp))
                         if (kegiatan.isEmpty()) {
@@ -341,11 +346,12 @@ fun BerandaScreen(
                 Spacer(Modifier.height(12.dp))
                 val menu: List<Triple<String, String, () -> Unit>> = listOf(
                     Triple(Fa.BOOK_OPEN, "Jenis\nTanaman") { onMenu(Tab.TANAMAN) },
-                    Triple(Fa.SCALE, "Dosis\nPupuk") { onMenu(Tab.DOSIS) },
-                    Triple(Fa.CLIPBOARD, "Jadwal\nPupuk") { onLayar("jadwal") },
+                    Triple(Fa.BUG, "Organisme\nPerusak") { onLayar("opt") },
+                    Triple(Fa.LIST_CHECK, "Alur\nBudidaya") { onLayar("alur") },
                     Triple(Fa.CALC, "Kalkulator\nDosis") { onMenu(Tab.DOSIS) },
-                    Triple(Fa.STETHO, "Diagnosa\nGejala") { onLayar("diagnosa") },
+                    Triple(Fa.STETHO, "Diagnosis\nTanaman") { onLayar("diagnosa") },
                     Triple(Fa.GEAR, "Pengaturan") { onMenu(Tab.INFO) }
+                ) { onMenu(Tab.INFO) }
                 )
                 menu.chunked(3).forEach { rowItems ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -375,6 +381,36 @@ fun BerandaScreen(
                 }
             }
         }
+        if (tanamanSaya.isNotEmpty()) {
+            item {
+                Column(Modifier.padding(horizontal = 18.dp).offset(y = (-18).dp)) {
+                    Text("Tanaman yang Sedang Diamati", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = TeksGelap)
+                    Spacer(Modifier.height(8.dp))
+                    tanamanSaya.take(4).forEach { ts ->
+                        val t = TanamanDB.byId(ts.tanamanId) ?: return@forEach
+                        val hst = ts.hst()
+                        Kartu(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                TanamanIcon(t, size = 40.dp, color = Hijau)
+                                Spacer(Modifier.width(11.dp))
+                                Column(Modifier.weight(1f)) {
+                                    Text(ts.label, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = TeksGelap)
+                                    Text("Umur $hst HST • ${t.fasePada(hst)?.nama ?: "Menjelang Panen"} • Panen ±${t.panenMin}–${t.panenMax} HST",
+                                        fontSize = 11.sp, color = TeksAbu)
+                                    Spacer(Modifier.height(5.dp))
+                                    LinearProgressIndicator(
+                                        progress = { t.progres(hst) }, color = Hijau, trackColor = Garis,
+                                        modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(50))
+                                    )
+                                }
+                                Spacer(Modifier.width(8.dp))
+                                Text("${(t.progres(hst) * 100).toInt()}%", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = HijauTua)
+                            }
+                        }
+                    }
+                }
+            }
+        }
         item {
             Column(Modifier.padding(start = 18.dp).offset(y = (-12).dp)) {
                 Row(Modifier.fillMaxWidth().padding(end = 18.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -384,7 +420,16 @@ fun BerandaScreen(
                         modifier = Modifier.clickable { onMenu(Tab.TANAMAN) })
                 }
                 Spacer(Modifier.height(12.dp))
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(end = 18.dp)) {
+                val stateKategori = androidx.compose.foundation.lazy.rememberLazyListState()
+                LaunchedEffect(Unit) {
+                    var idx = 0
+                    while (true) {
+                        kotlinx.coroutines.delay(2600)
+                        idx = (idx + 1) % TanamanDB.semua.size
+                        try { stateKategori.animateScrollToItem(idx) } catch (e: Exception) { }
+                    }
+                }
+                LazyRow(state = stateKategori, horizontalArrangement = Arrangement.spacedBy(10.dp), contentPadding = PaddingValues(end = 18.dp)) {
                     items(TanamanDB.semua) { t ->
                         Kartu(Modifier.width(180.dp).clickable { onDetail(t.id) }) {
                             Column(Modifier.padding(14.dp)) {

@@ -52,8 +52,33 @@ fun formatRp(n: Long): String = "Rp " + "%,d".format(n).replace(',', '.')
 @Composable
 fun DiagnosaScreen(onBack: () -> Unit) {
     var pilih by remember { mutableStateOf<Gejala?>(null) }
+    var fotoScan by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+    val kamera = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bmp ->
+        if (bmp != null) fotoScan = bmp
+    }
     LazyColumn(Modifier.fillMaxSize()) {
-        item { KepalaLayar("Diagnosa Gejala", "Pilih gejala yang terlihat — tampil kemungkinan penyebab & tindakannya", onBack) }
+        item { KepalaLayar("Diagnosis Tanaman", "Foto tanaman yang rusak, lalu cocokkan gejalanya di bawah — tampil kemungkinan penyebab & tindakannya", onBack) }
+        item {
+            Column(Modifier.padding(horizontal = 18.dp)) {
+                Button(onClick = { kamera.launch(null) }, shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Biru),
+                    modifier = Modifier.fillMaxWidth()) {
+                    FaIcon(Fa.CAMERA, size = 14.sp, color = Color.White)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Scan / Foto Tanaman Rusak", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                }
+                val bmp = fotoScan
+                if (bmp != null) {
+                    Spacer(Modifier.height(10.dp))
+                    Image(bitmap = bmp.asImageBitmap(), contentDescription = "foto tanaman rusak",
+                        modifier = Modifier.fillMaxWidth().height(220.dp).clip(RoundedCornerShape(12.dp)),
+                        contentScale = ContentScale.Crop)
+                    Text("Bandingkan foto ini dengan gejala di bawah: warna & bentuk bercak, daun layu/keriting, buah busuk, atau ada hama yang terlihat. Ketuk gejala yang paling mirip.",
+                        fontSize = 12.sp, color = TeksAbu, modifier = Modifier.padding(top = 8.dp))
+                }
+                Spacer(Modifier.height(10.dp))
+            }
+        }
         items(GejalaDB.semua) { g ->
             val aktif = pilih?.nama == g.nama
             Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 4.dp)
@@ -706,5 +731,101 @@ fun KartuCuaca() {
                 OutlinedButton(onClick = { dialogKota = false }, shape = RoundedCornerShape(10.dp)) { Text("Tutup") }
             }
         )
+    }
+}
+
+/* ---------------- ORGANISME PERUSAK TANAMAN (OPT) ---------------- */
+
+@Composable
+fun OptScreen(onBack: () -> Unit) {
+    var filter by remember { mutableStateOf("Semua") }
+    val daftar = OptDB.semua.filter { filter == "Semua" || it.jenis == filter }
+    LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            KepalaLayar("Organisme Perusak Tanaman", "Hama & penyakit utama — gejala, pencegahan, dan pengendaliannya", onBack)
+            Row(Modifier.padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf("Semua", "Hama", "Penyakit").forEach { f ->
+                    Box(Modifier.clip(RoundedCornerShape(10.dp))
+                        .background(if (filter == f) Biru else BiruSangatMuda)
+                        .clickable { filter = f }.padding(horizontal = 14.dp, vertical = 8.dp)) {
+                        Text(f, fontSize = 13.sp, fontWeight = FontWeight.SemiBold,
+                            color = if (filter == f) Color.White else Biru)
+                    }
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+        }
+        items(daftar) { o ->
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Column(Modifier.padding(14.dp)) {
+                    Row(verticalAlignment = Alignment.Top) {
+                        if (o.foto != 0) {
+                            Image(painter = androidx.compose.ui.res.painterResource(o.foto),
+                                contentDescription = o.nama,
+                                modifier = Modifier.size(74.dp).clip(RoundedCornerShape(12.dp)),
+                                contentScale = ContentScale.Crop)
+                            Spacer(Modifier.width(12.dp))
+                        } else {
+                            Box(Modifier.size(74.dp).clip(RoundedCornerShape(12.dp)).background(HijauMuda),
+                                contentAlignment = Alignment.Center) {
+                                FaIcon(if (o.jenis == "Hama") Fa.BUG else Fa.SEEDLING, size = 28.sp, color = HijauTua)
+                            }
+                            Spacer(Modifier.width(12.dp))
+                        }
+                        Column(Modifier.weight(1f)) {
+                            Text(o.nama, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                            Text("${o.jenis} • Sasaran: ${o.sasaran}", fontSize = 12.sp, color = BiruKartu)
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text("Gejala", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BiruKartu)
+                    Text(o.gejala, fontSize = 13.sp, color = TeksGelap)
+                    Spacer(Modifier.height(6.dp))
+                    Text("Pencegahan", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BiruKartu)
+                    Text(o.pencegahan, fontSize = 13.sp, color = TeksGelap)
+                    Spacer(Modifier.height(6.dp))
+                    Text("Pengendalian", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BiruKartu)
+                    Text(o.pengendalian, fontSize = 13.sp, color = TeksGelap)
+                }
+            }
+        }
+        item {
+            Text("Foto hama & penyakit: Wikimedia Commons (lisensi CC — rincian di Pengaturan). Untuk serangan berat di lapangan, konsultasikan ke guru/penyuluh sebelum memakai pestisida kimia.",
+                fontSize = 11.sp, color = TeksAbu, modifier = Modifier.padding(18.dp))
+        }
+    }
+}
+
+/* ---------------- ALUR BUDIDAYA ---------------- */
+
+@Composable
+fun AlurScreen(onBack: () -> Unit) {
+    LazyColumn(Modifier.fillMaxSize()) {
+        item { KepalaLayar("Alur Budidaya", "Tahapan budidaya tanaman semusim: dari benih sampai pascapanen", onBack) }
+        items(AlurDB.semua) { t ->
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Column(Modifier.padding(14.dp)) {
+                    if (t.foto != 0) {
+                        Image(painter = androidx.compose.ui.res.painterResource(t.foto),
+                            contentDescription = t.nama,
+                            modifier = Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(12.dp)),
+                            contentScale = ContentScale.Crop)
+                        Spacer(Modifier.height(10.dp))
+                    }
+                    Text(t.nama, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                    Spacer(Modifier.height(4.dp))
+                    Text(t.ringkasan, fontSize = 13.sp, color = TeksGelap)
+                    Spacer(Modifier.height(6.dp))
+                    t.langkah.forEach { l ->
+                        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.Top) {
+                            FaIcon(Fa.CHECK, size = 11.sp, color = Hijau, modifier = Modifier.padding(top = 3.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(l, fontSize = 12.sp, color = TeksGelap)
+                        }
+                    }
+                }
+            }
+        }
+        item { Spacer(Modifier.height(14.dp)) }
     }
 }
