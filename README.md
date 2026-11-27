@@ -33,6 +33,17 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.14.0
+
+- **Materi Organisme Perusak Tanaman (HAMA) diganti dari dokumen
+  RINGKASAN_HAMA_PERTANIAN**: sekarang 8 hama — Wereng Batang Cokelat,
+  Penggerek Batang Padi, Walang Sangit, Ulat Grayak Jagung, Thrips Cabai,
+  Kutu Daun, Kutu Kebul, Lalat Buah — masing-masing dengan nama ilmiah,
+  ciri identifikasi, gejala, pengendalian anjuran & catatan lapangan.
+- Menu OPT ditambah materi **Cara Melakukan Pengamatan Lapangan** dan
+  **Keselamatan dalam Penggunaan Pestisida** dari dokumen yang sama.
+- 5 penyakit yang sudah ada tetap dipertahankan.
+
 ## v1.13.0
 
 - **Kalkulator Dosis: jenis pupuk kini 6 sesuai dokumen** — ditambah **Urea**

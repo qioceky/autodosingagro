@@ -774,6 +774,10 @@ fun OptScreen(onBack: () -> Unit) {
                         }
                         Column(Modifier.weight(1f)) {
                             Text(o.nama, fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                            if (o.ilmiah.isNotEmpty()) {
+                                Text(o.ilmiah, fontSize = 12.sp, color = TeksAbu,
+                                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic)
+                            }
                             Text("${o.jenis} • Sasaran: ${o.sasaran}", fontSize = 12.sp, color = BiruKartu)
                         }
                     }
@@ -786,11 +790,55 @@ fun OptScreen(onBack: () -> Unit) {
                     Spacer(Modifier.height(6.dp))
                     Text("Pengendalian", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BiruKartu)
                     Text(o.pengendalian, fontSize = 13.sp, color = TeksGelap)
+                    if (o.catatan.isNotEmpty()) {
+                        Spacer(Modifier.height(6.dp))
+                        Text("Catatan lapangan", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = BiruKartu)
+                        Text(o.catatan, fontSize = 13.sp, color = TeksGelap)
+                    }
                 }
             }
         }
         item {
-            Text("Foto hama & penyakit: Wikimedia Commons (lisensi CC — rincian di Pengaturan). Untuk serangan berat di lapangan, konsultasikan ke guru/penyuluh sebelum memakai pestisida kimia.",
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("Cara Melakukan Pengamatan Lapangan", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                    Spacer(Modifier.height(6.dp))
+                    listOf(
+                        "Tentukan petak pengamatan yang mewakili kondisi lahan — jangan hanya memilih tanaman yang tampak rusak.",
+                        "Amati beberapa titik menyebar (pola diagonal/zig-zag); jumlah contoh & interval mengikuti pedoman komoditas setempat.",
+                        "Periksa organ sesuai hama: pangkal rumpun (wereng), batang/pucuk (penggerek & ulat grayak), malai (walang sangit), pucuk/bawah daun/bunga (thrips & kutu), buah (lalat buah).",
+                        "Catat tanggal, lokasi, umur tanaman, jumlah contoh, tanaman terserang, tingkat kerusakan, stadia hama & musuh alami.",
+                        "Bandingkan dengan ambang kendali resmi/lokal. Bila identifikasi tak pasti atau serangan naik cepat, konsultasikan ke POPT."
+                    ).forEachIndexed { i, l ->
+                        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.Top) {
+                            Text("${i + 1}.", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Biru)
+                            Spacer(Modifier.width(7.dp))
+                            Text(l, fontSize = 12.sp, color = TeksGelap)
+                        }
+                    }
+                }
+            }
+            Kartu(Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 5.dp)) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("Keselamatan dalam Penggunaan Pestisida", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = TeksGelap)
+                    Spacer(Modifier.height(6.dp))
+                    listOf(
+                        "Gunakan hanya pestisida terdaftar & diizinkan untuk komoditas serta sasaran hama dimaksud.",
+                        "Baca & ikuti label: dosis, volume semprot, interval, jumlah aplikasi maksimum, kompatibilitas & masa pra-panen.",
+                        "Pakai alat pelindung diri sesuai label; jangan makan, minum, atau merokok saat mencampur & menyemprot.",
+                        "Hindari menyemprot saat angin kencang, hujan, sangat panas, atau saat lebah/penyerbuk aktif di bunga.",
+                        "Jangan mencampur produk tanpa dasar rekomendasi; jangan buang sisa larutan/kemasan ke sungai, irigasi, atau sumber air.",
+                        "Simpan pestisida terkunci dalam kemasan asli, jauh dari anak-anak, pakan & bahan pangan."
+                    ).forEach { l ->
+                        Row(Modifier.padding(vertical = 2.dp), verticalAlignment = Alignment.Top) {
+                            FaIcon(Fa.CHECK, size = 11.sp, color = Hijau, modifier = Modifier.padding(top = 3.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text(l, fontSize = 12.sp, color = TeksGelap)
+                        }
+                    }
+                }
+            }
+            Text("Materi hama: ringkasan hama pertanian (dokumen materi). Foto hama & penyakit: Wikimedia Commons (lisensi CC — rincian di Pengaturan). Untuk serangan berat di lapangan, konsultasikan ke guru/penyuluh/POPT sebelum memakai pestisida kimia.",
                 fontSize = 11.sp, color = TeksAbu, modifier = Modifier.padding(18.dp))
         }
     }
