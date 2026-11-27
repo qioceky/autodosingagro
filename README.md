@@ -33,6 +33,12 @@ Semua data tersimpan lokal di HP. Tanpa internet, tanpa akun.
 > Dosis adalah acuan umum praktik ATPH. Kebutuhan nyata menyesuaikan uji
 > tanah, varietas & kondisi lahan — konsultasikan dengan guru/penyuluh setempat.
 
+## v1.14.1
+
+- **Semua OPT sekarang bergambar**: ditambah foto untuk Penggerek Batang
+  Padi, Walang Sangit, Thrips Cabai, Kutu Kebul, Lalat Buah & Virus Kuning
+  (Wikimedia Commons CC/Public domain, kredit di Pengaturan).
+
 ## v1.14.0
 
 - **Materi Organisme Perusak Tanaman (HAMA) diganti dari dokumen
